@@ -69,7 +69,11 @@ namespace Cave.IO
             do
             {
                 value /= 128;
-                if (value != 0) b |= 0x80;
+                if (value != 0)
+                {
+                    b |= 0x80;
+                }
+
                 result[index++] = b;
                 b = (byte)(value % 128);
             } while (value != 0);
@@ -94,7 +98,14 @@ namespace Cave.IO
         /// <returns></returns>
         public byte[] GetBytes(bool value)
         {
-            if (value) return new byte[] { 1 }; else return new byte[] { 0 };
+            if (value)
+            {
+                return new byte[] { 1 };
+            }
+            else
+            {
+                return new byte[] { 0 };
+            }
         }
 
         /// <summary>
@@ -214,7 +225,11 @@ namespace Cave.IO
         /// <returns></returns>
         public bool ToBoolean(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             return data[index] != 0;
         }
 
@@ -226,7 +241,11 @@ namespace Cave.IO
         /// <returns></returns>
         public byte ToByte(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             return data[index];
         }
 
@@ -238,7 +257,11 @@ namespace Cave.IO
         /// <returns></returns>
         public sbyte ToSByte(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             return unchecked((sbyte)data[index]);
         }
 
@@ -283,7 +306,11 @@ namespace Cave.IO
         /// <returns></returns>
         public decimal ToDecimal(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             int[] array = new int[4];
             for (int i = 0; i < 4; i++)
             {

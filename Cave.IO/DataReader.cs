@@ -46,6 +46,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -64,80 +65,71 @@ namespace Cave.IO
         Encoding textDecoder;
 		StringEncoding stringEncoding;
 		EndianType endianType;
+        bool slowTextDecodingWarningSent;
+        bool lineFeedTested;
+        bool zeroTested;
 
-		#region private string reader implementation for reading strings without buffering
-		byte[] m_ReadUTF8(int charCount)
+        #region private string reader implementation for reading strings without buffering
+        byte[] ReadCharsUTF8(int charCount)
         {
-            int readBOM = 0;
+            int chars = 0;
             List<byte> result = new List<byte>(charCount * 4);
-            for (int i = 0; i < charCount; i++)
+            while (true)
             {
-                byte b = ReadByte();
-                result.Add(b);
-                #region BOM reader
-                /* UTF8 BOM Quick Fix only for single chars.
-                 * TODO: find solution for BOM detection
-                 */
-                if (charCount > 2)
+                for (; chars < charCount; chars++)
                 {
-                    if (readBOM > 0)
+                    byte b = ReadByte();
+                    result.Add(b);
+
+                    #region char reader
+
+                    if (b < 0x80)
                     {
-                        if (readBOM == 1)
-                        {
-                            if (b != 0xBB)
-                            {
-                                throw new InvalidDataException("Invalid BOM at index 1");
-                            }
-                            readBOM++;
-                        }
-                        else if (readBOM == 2)
-                        {
-                            if (b != 0xBF)
-                            {
-                                throw new InvalidDataException("Invalid BOM at index 2");
-                            }
-                            readBOM = 0;
-                        }
                         continue;
                     }
-                    if (b == 0xEF)
+
+                    if (b < 0xC2)
                     {
-                        readBOM = 1;
-                        continue;
+                        throw new InvalidDataException();
                     }
+
+                    if (b >= 0xF5)
+                    {
+                        throw new InvalidDataException();
+                    }
+
+                    // if (b >= 0xC2)
+                    {
+                        //2nd byte
+                        result.Add(ReadByte());
+                    }
+                    if (b >= 0xE0)
+                    {
+                        //3rd byte
+                        result.Add(ReadByte());
+                    }
+                    if (b >= 0xF0)
+                    {
+                        //4th byte
+                        result.Add(ReadByte());
+                    }
+                    
+                    #endregion
                 }
-                #endregion
-                #region char reader
-                if (b < 0x80) continue;
-                if (b < 0xC2)
+
+                //remove bom at beginning
+                if (result.Count > 2 && result[0] == 0xEF && result[1] == 0xBB && result[2] == 0xBF)
                 {
-                    throw new InvalidDataException();
+                    result.RemoveRange(0, 3);
+                    chars--;
+                    continue;
                 }
-                if (b >= 0xC2)
-                {
-                    //2 byte char
-                    result.Add(ReadByte());
-                }
-                if (b >= 0xE0)
-                {
-                    //3 byte char
-                    result.Add(ReadByte());
-                }
-                if (b >= 0xF0)
-                {
-                    //4 byte char
-                    result.Add(ReadByte());
-                }
-                if (b >= 0xF5)
-                {
-                    throw new InvalidDataException();
-                }
-                #endregion
+                break;
             }
             return result.ToArray();
         }
 
-        byte[] m_ReadUTF16(int charCount)
+        byte[] ReadCharsUTF16LE(int charCount)
         {
             List<byte> result = new List<byte>(charCount * 4);
             for (int i = 0; i < charCount; i++)
@@ -156,11 +148,46 @@ namespace Cave.IO
             return result.ToArray();
         }
 
-        byte[] m_ReadUTF32(int charCount)
+        byte[] ReadCharsUTF16BE(int charCount)
+        {
+            List<byte> result = new List<byte>(charCount * 4);
+            for (int i = 0; i < charCount; i++)
+            {
+                byte b1 = ReadByte();
+                byte b2 = ReadByte();
+                result.Add(b1);
+                result.Add(b2);
+                if ((b1 > 0xD7) && (b1 < 0xDC))
+                {
+                    //add low surrogate
+                    result.Add(ReadByte());
+                    result.Add(ReadByte());
+                }
+            }
+            return result.ToArray();
+        }
+
+        byte[] ReadCharsUTF32(int charCount)
         {
             return ReadBytes(4 * charCount);
         }
         #endregion
+
+        /// <summary>
+		/// Gets / sets the Encoding to use for characters and strings. 
+        /// Setting this value directly sets <see cref="StringEncoding"/> to <see cref="StringEncoding.Undefined"/>.
+		/// </summary>
+        public Encoding Encoding
+        {
+            get => textDecoder;
+            set
+            {
+                textDecoder = value;
+                stringEncoding = StringEncoding.Undefined;
+                lineFeedTested = false;
+                zeroTested = false;
+            }
+        }
 
         /// <summary>
         /// Provides the new line mode used
@@ -195,13 +222,16 @@ namespace Cave.IO
 				stringEncoding = value;
 				switch (stringEncoding)
 				{
+                    case StringEncoding.Undefined: break;
 					case StringEncoding.ASCII: textDecoder = new CheckedASCIIEncoding(); break;
 					case StringEncoding.UTF8: textDecoder = Encoding.UTF8; break;
 					case StringEncoding.UTF16: textDecoder = Encoding.Unicode; break;
 					case StringEncoding.UTF32: textDecoder = Encoding.UTF32; break;
-                    default: textDecoder = Encoding.GetEncoding(stringEncoding.ToString().Replace('_', '-')); break;
-				}
-			}
+                    default: textDecoder = Encoding.GetEncoding((int)stringEncoding); break;
+                }
+                lineFeedTested = false;
+                zeroTested = false;
+            }
 		}
 
         /// <summary>
@@ -209,43 +239,46 @@ namespace Cave.IO
         /// </summary>
         public Stream BaseStream { get; private set; }
 
-        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream</summary>
+        /// <summary>Creates a new binary reader using the specified encoding and writing to the specified stream</summary>
         /// <param name="input">The stream to read from</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="endian">The endian type.</param>
-        /// <param name="newLineMode">Sets the newline mode used</param>
-        public DataReader(Stream input, StringEncoding encoding, EndianType endian = EndianType.LittleEndian, NewLineMode newLineMode = NewLineMode.LF)
-            : this(input, newLineMode, encoding, endian)
+        /// <param name="newLineMode">New line mode</param>
+        /// <exception cref="ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
+        /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
+        /// or EndianType {0} not supported!</exception>
+        public DataReader(Stream input, StringEncoding encoding = StringEncoding.UTF8, NewLineMode newLineMode = NewLineMode.LF, EndianType endian = EndianType.LittleEndian)
         {
-        }
-
-        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream</summary>
-        /// <param name="input">The stream to read from</param>
-        /// <param name="endian">The endian type.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="newLineMode">Sets the newline mode used</param>
-        public DataReader(Stream input, EndianType endian, StringEncoding encoding = StringEncoding.UTF8, NewLineMode newLineMode = NewLineMode.LF)
-            : this(input, newLineMode, encoding, endian)
-        {
+            BaseStream = input ?? throw new ArgumentNullException("output");
+            NewLineMode = newLineMode;
+            StringEncoding = encoding != StringEncoding.Undefined ? encoding : throw new ArgumentOutOfRangeException(nameof(encoding));
+            EndianType = endian;
+            if (!BaseStream.CanRead)
+            {
+                throw new ArgumentException("Stream does not support reading or is already closed.", nameof(input));
+            }
         }
 
         /// <summary>Creates a new binary reader using the specified encoding and writing to the specified stream</summary>
         /// <param name="input">The stream to read from</param>
-        /// <param name="newLineMode">Sets the newline mode used</param>
-        /// <param name="stringEncoding">Encoding to use for characters and strings</param>
+        /// <param name="newLineMode">New line mode</param>
+        /// <param name="encoding">Encoding to use for characters and strings</param>
         /// <param name="endian">The endian type.</param>
-        /// <exception cref="ArgumentNullException">input</exception>
-        /// <exception cref="ArgumentException">Stream does not support reading or is already closed.;input</exception>
+        /// <exception cref="ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
         /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
         /// or EndianType {0} not supported!</exception>
-        public DataReader(Stream input, NewLineMode newLineMode = NewLineMode.LF, StringEncoding stringEncoding = StringEncoding.UTF8, EndianType endian = EndianType.LittleEndian)
+        public DataReader(Stream input, Encoding encoding, NewLineMode newLineMode = NewLineMode.LF, EndianType endian = EndianType.LittleEndian)
         {
-            if (input == null) throw new ArgumentNullException("input");
-            if (!input.CanRead) throw new ArgumentException("Stream does not support reading or is already closed.", "input");
-            BaseStream = input;
+            BaseStream = input ?? throw new ArgumentNullException("output");
             NewLineMode = newLineMode;
-            StringEncoding = stringEncoding;
-			EndianType = endian;
+            Encoding = encoding ?? throw new ArgumentOutOfRangeException(nameof(encoding));
+            EndianType = endian;
+            if (!BaseStream.CanRead)
+            {
+                throw new ArgumentException("Stream does not support reading or is already closed.", nameof(input));
+            }
         }
 
         /// <summary>
@@ -274,8 +307,16 @@ namespace Cave.IO
         /// <returns></returns>
         public void Skip(long count)
         {
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-            if (count == 0) return;
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            if (count == 0)
+            {
+                return;
+            }
+
             Seek(count, SeekOrigin.Current);
         }
 
@@ -305,7 +346,11 @@ namespace Cave.IO
         public byte ReadByte()
         {
             int b = BaseStream.ReadByte();
-            if (b < 0) throw new EndOfStreamException();
+            if (b < 0)
+            {
+                throw new EndOfStreamException();
+            }
+
             return (byte)b;
         }
 
@@ -318,7 +363,11 @@ namespace Cave.IO
             int length = Read7BitEncodedInt32();
             if (length < 0)
             {
-                if (length == -1) return null;
+                if (length == -1)
+                {
+                    return null;
+                }
+
                 throw new InvalidDataException(string.Format("Invalid 7bit encoded value found!"));
             }
             return ReadBytes(length);
@@ -335,7 +384,11 @@ namespace Cave.IO
             while (done < count)
             {
                 int read = BaseStream.Read(result, done, count - done);
-                if (read == 0) throw new EndOfStreamException();
+                if (read == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+
                 done += read;
             }
             return result;
@@ -350,9 +403,16 @@ namespace Cave.IO
             {
                 case StringEncoding.ASCII:
                     byte b = ReadByte();
-                    if (b > 127) throw new InvalidDataException(string.Format("Byte '{0}' is not a valid ASCII character!", b));
+                    if (b > 127)
+                    {
+                        throw new InvalidDataException(string.Format("Byte '{0}' is not a valid ASCII character!", b));
+                    }
+
                     return (char)b;
-                default: return ReadChars(1)[0];
+                default:
+                    var result = ReadChars(1);
+                    if (result.Length > 1) throw new InvalidDataException("Decoded characters do not match single character read!");
+                    return result[0];
             }
         }
 
@@ -362,13 +422,44 @@ namespace Cave.IO
         /// <param name="count">Number of characters (not bytes) to read</param>
         public char[] ReadChars(int count)
         {
+            if (textDecoder.IsSingleByte)
+            {
+                return textDecoder.GetChars(ReadBytes(count));
+            }
             switch (StringEncoding)
             {
-                case StringEncoding.UTF8: return textDecoder.GetChars(m_ReadUTF8(count));
-                case StringEncoding.UTF16: return textDecoder.GetChars(m_ReadUTF16(count));
-                case StringEncoding.UTF32: return textDecoder.GetChars(m_ReadUTF32(count));
-				default: return textDecoder.GetChars(ReadBytes(count));
+                case StringEncoding.UTF_8:
+                case StringEncoding.UTF8: return textDecoder.GetChars(ReadCharsUTF8(count));
+
+                case StringEncoding.UTF_16:
+                case StringEncoding.UTF16: return textDecoder.GetChars(ReadCharsUTF16LE(count));
+
+                case StringEncoding.UTF_16BE: return textDecoder.GetChars(ReadCharsUTF16BE(count));
+
+                case StringEncoding.UTF_32:
+                case StringEncoding.UTF32: return textDecoder.GetChars(ReadCharsUTF32(count));
+
+                default:
+                    if (!slowTextDecodingWarningSent)
+                    {
+                        Trace.TraceWarning("Using slow text decoding.");
+                        slowTextDecodingWarningSent = true;
+                    }
+                    break;
 			}
+
+            var buf = ReadBytes(count);
+            var dec = textDecoder.GetDecoder();
+            var result = new char[count];
+            dec.Convert(buf, 0, count, result, 0, count, false, out int bytesUsed, out int resultCount, out bool complete);
+            while (!complete || resultCount < count)
+            {
+                int charCountLeft = count - resultCount;
+                buf = ReadBytes(charCountLeft);
+                dec.Convert(buf, 0, charCountLeft, result, resultCount, charCountLeft, false, out bytesUsed, out int charsUsed, out complete);
+                resultCount += charsUsed;
+            }
+            return result;
         }
 
         /// <summary>
@@ -377,7 +468,11 @@ namespace Cave.IO
         public decimal ReadDecimal()
         {
             int[] bits = new int[4];
-            for (int i = 0; i < 4; i++) bits[i] = ReadInt32();
+            for (int i = 0; i < 4; i++)
+            {
+                bits[i] = ReadInt32();
+            }
+
             return new decimal(bits);
         }
 
@@ -474,72 +569,100 @@ namespace Cave.IO
         /// </summary>
         public string ReadLine()
         {
+            if (!lineFeedTested)
+            {
+                if ("\r\n" != textDecoder.GetString(textDecoder.GetBytes("\r\n")))
+                {
+                    throw new InvalidOperationException($"Encoding {textDecoder.EncodingName} does not support WriteLine/ReadLine!");
+                }
+                lineFeedTested = true;
+            }
             List<char> result = new List<char>();
             bool completed = false;
+            bool waitLF = false;
             while (!completed)
             {
-                char c = ReadChar();
-                switch (c)
+                var chars = ReadChars(1);
+                for (int i = 0; i < chars.Length; i++)
                 {
-                    case '\r':
-                        switch (NewLineMode)
-                        {
-                            case NewLineMode.CR: completed = true; continue;
-                            // treat carriage return as regular char if NewLineMode is line feed
-                            case NewLineMode.LF: break;
-                            case NewLineMode.CRLF:
-                                char c2 = ReadChar();
-                                if (c2 == '\n') { completed = true; continue; }
-                                result.Add(c);
-                                result.Add(c2);
-                                continue;
-                            default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
-                        }
-                        break;
-                    case '\n':
-                        switch (NewLineMode)
-                        {
-                            case NewLineMode.LF: completed = true; continue;
-                            // treat line feed as regular char if NewLineMode is carriage return
-                            case NewLineMode.CR: break;
-                            case NewLineMode.CRLF: break;
-                            default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
-                        }
-                        break;
+                    if (completed)
+                    {
+                        throw new InvalidDataException("Decoding got additional chars after newline!");
+                    }
+                    char c = chars[i];
+                    switch (c)
+                    {
+                        case '\r':
+                            switch (NewLineMode)
+                            {
+                                case NewLineMode.CR: completed = true; continue;
+                                // treat carriage return as regular char if NewLineMode is line feed
+                                case NewLineMode.LF: break;
+                                case NewLineMode.CRLF:
+                                    waitLF = true;
+                                    continue;
+                                default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
+                            }
+                            break;
+                        case '\n':
+                            switch (NewLineMode)
+                            {
+                                case NewLineMode.LF: completed = true; continue;
+                                // treat line feed as regular char if NewLineMode is carriage return
+                                case NewLineMode.CR: break;
+                                case NewLineMode.CRLF:
+                                    if (waitLF)
+                                    {
+                                        completed = true;
+                                        continue;
+                                    }
+                                    break;
+                                default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
+                            }
+                            break;
+                    }
+                    result.Add(c);
+                    if (result.Count > 65536)
+                    {
+                        throw new InvalidDataException("Refusing to read more than 64k characters at ReadLine()!");
+                    }
                 }
-                result.Add(c);
-                if (result.Count > 65536) throw new InvalidDataException("Refusing to read more than 64k characters at ReadLine()!");
             }
             return new string(result.ToArray());
         }
 
         /// <summary>
-        /// Reads bytes ending with [CR]LF from the stream
+        /// Reads bytes from the stream until one of the specified end markers are found or max count is reached.
         /// </summary>
-        public byte[] ReadUntil(int maxCount, params byte[] endMark)
+        public void ReadUntil(byte[] data, ref int offset, bool removeMarker, params byte[] endMark)
         {
-            List<byte> result = new List<byte>();
+            int maxCount = data.Length;
             bool completed = false;
             int endMarkLast = endMark.Length - 1;
             while (!completed)
             {
-                byte b = ReadByte();
-                result.Add(b);
-                if (maxCount > 0 && result.Count > maxCount) throw new InvalidDataException("Refusing to read more than " + maxCount + " bytes at ReadUntil()!");
+                if (offset > data.Length)
+                {
+                    throw new InvalidDataException($"Refusing to read more than {maxCount} bytes at ReadUntil()!");
+                }
 
-                if (result.Count >= endMark.Length && b == endMark[endMarkLast])
+                var b = data[offset] = ReadByte();
+                if (offset >= endMark.Length && b == endMark[endMarkLast])
                 {
                     completed = true;
-                    int i = endMarkLast;
-                    int n = result.Count - 1;
+                    int i = endMarkLast - 1;
+                    int n = offset - 1;
                     while (i >= 0)
                     {
-                        if (result[n--] != endMark[i--]) { completed = false; break; }
+                        if (data[n--] != endMark[i--]) { completed = false; break; }
                     }
                 }
+                offset += 1;
             }
-            result.RemoveRange(result.Count - endMark.Length, endMark.Length);
-            return result.ToArray();
+            if (removeMarker)
+            {
+                offset -= endMark.Length;
+            }
         }
 
         /// <summary>
@@ -547,13 +670,7 @@ namespace Cave.IO
         /// </summary>
         public string ReadString(int count)
         {
-            switch (StringEncoding)
-            {
-                case StringEncoding.UTF8: return Encoding.UTF8.GetString(ReadBytes(count));
-                case StringEncoding.UTF16: return Encoding.Unicode.GetString(ReadBytes(count));
-                case StringEncoding.UTF32: return Encoding.UTF32.GetString(ReadBytes(count));
-				default: return textDecoder.GetString(ReadBytes(count));
-			}
+            return textDecoder.GetString(ReadBytes(count));
         }
 
         /// <summary>
@@ -565,7 +682,11 @@ namespace Cave.IO
             int length = Read7BitEncodedInt32();
             if (length < 0)
             {
-                if (length == -1) return null;
+                if (length == -1)
+                {
+                    return null;
+                }
+
                 throw new InvalidDataException(string.Format("Invalid 7bit encoded value found!"));
             }
             return ReadString(length);
@@ -574,27 +695,42 @@ namespace Cave.IO
         /// <summary>
         /// Reads a zero terminated string from the stream
         /// </summary>
-        public string ReadZeroTerminatedString()
+        public string ReadZeroTerminatedString(int maximumBytes)
         {
-            List<char> result = new List<char>();
+            if (!zeroTested)
+            {
+                if ("\0" != textDecoder.GetString(textDecoder.GetBytes("\0")))
+                {
+                    throw new InvalidOperationException($"Encoding {textDecoder.EncodingName} does not support zero termination!");
+                }
+                zeroTested = true;
+            }
+
+            var termination = textDecoder.GetBytes("\0");
+            var buf = new byte[maximumBytes];
+            int offset = 0;
             while (true)
             {
-                char c = ReadChar();
-                if (c == 0) break;
-                result.Add(c);
+                ReadUntil(buf, ref offset, false, termination);
+                var s = textDecoder.GetString(buf, 0, offset);
+                int i = s.IndexOf('\0');
+                if (i > -1) return s.Substring(0, i);
             }
-            return new string(result.ToArray());
         }
 
         /// <summary>
         /// Reads a zero terminated string from the stream
         /// </summary>
         /// <param name="byteCount">Fieldlength in bytes</param>
-        public string ReadZeroTerminatedString(int byteCount)
+        public string ReadZeroTerminatedFixedLengthString(int byteCount)
         {
             string result = ReadString(byteCount);
             int i = result.IndexOf((char)0);
-            if (i > -1) result = result.Substring(0, i);
+            if (i > -1)
+            {
+                result = result.Substring(0, i);
+            }
+
             return result;
         }
 
@@ -693,8 +829,15 @@ namespace Cave.IO
         public T[] ReadArray<T>() where T : struct
         {
             int count = Read7BitEncodedInt32();
-            if (count < 0) throw new InvalidDataException("Invalid length prefix while reading array!");
-            if (count == 0) return new T[0];
+            if (count < 0)
+            {
+                throw new InvalidDataException("Invalid length prefix while reading array!");
+            }
+
+            if (count == 0)
+            {
+                return new T[0];
+            }
 
             int byteCount = Read7BitEncodedInt32();
             byte[] bytes = ReadBytes(byteCount);
@@ -702,7 +845,10 @@ namespace Cave.IO
             if (typeof(T) == typeof(byte))
             {
                 result = bytes as T[];
-                if (result == null) throw new PlatformNotSupportedException("Byte array conversion bug! Please update your mono framework!");
+                if (result == null)
+                {
+                    throw new PlatformNotSupportedException("Byte array conversion bug! Please update your mono framework!");
+                }
             }
             else
             {

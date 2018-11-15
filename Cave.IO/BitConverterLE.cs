@@ -118,8 +118,16 @@ namespace Cave.IO
         /// <returns></returns>
         public override ushort ToUInt16(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
-            if (index < 0 || index >= data.Length - 1) throw new ArgumentOutOfRangeException(nameof(index));
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
+            if (index < 0 || index >= data.Length - 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
             return unchecked((ushort)(data[index] + (data[index + 1] * 256)));
         }
 
@@ -131,7 +139,11 @@ namespace Cave.IO
         /// <returns></returns>
         public override uint ToUInt32(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             uint result = data[index];
             uint multiplier = 1;
             for (int i = 1; i < 4; i++)
@@ -150,7 +162,11 @@ namespace Cave.IO
         /// <returns></returns>
         public override ulong ToUInt64(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             ulong result = data[index];
             ulong multiplier = 1;
             for (int i = 1; i < 8; i++)

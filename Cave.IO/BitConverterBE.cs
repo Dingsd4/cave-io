@@ -129,7 +129,11 @@ namespace Cave.IO
         /// <returns></returns>
         public override uint ToUInt32(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             uint result = 0;
             for (int i = 0; i < 4; i++, index++)
             {
@@ -146,7 +150,11 @@ namespace Cave.IO
         /// <returns></returns>
         public override ulong ToUInt64(byte[] data, int index)
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             ulong result = 0;
             for (int i = 0; i < 8; i++, index++)
             {

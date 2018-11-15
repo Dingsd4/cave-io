@@ -62,12 +62,31 @@ namespace Cave.IO
         IBitConverter endianEncoder;
 		StringEncoding stringEncoding;
 		EndianType endianType;
+        bool lineFeedTested;
+        bool zeroTested;
+
+        /// <summary>
+		/// Gets / sets the Encoding to use for characters and strings. 
+        /// Setting this value directly sets <see cref="StringEncoding"/> to <see cref="StringEncoding.Undefined"/>.
+		/// </summary>
+        public Encoding Encoding
+        {
+            get => textEncoder;
+            set
+            {
+                textEncoder = value;
+                stringEncoding = StringEncoding.Undefined;
+                lineFeedTested = false;
+                zeroTested = false;
+            }
+        }
 
 		/// <summary>Gets the endian encoder type.</summary>
 		/// <value>The endian encoder type.</value>
 		public EndianType EndianType
 		{
-			get => endianType; set
+			get => endianType;
+            set
 			{
 				endianType = value;
 				switch (endianType)
@@ -90,13 +109,16 @@ namespace Cave.IO
 				stringEncoding = value;
 				switch (stringEncoding)
 				{
-					case StringEncoding.ASCII: textEncoder = new CheckedASCIIEncoding(); break;
+                    case StringEncoding.Undefined: break;
+                    case StringEncoding.ASCII: textEncoder = new CheckedASCIIEncoding(); break;
 					case StringEncoding.UTF8: textEncoder = Encoding.UTF8; break;
 					case StringEncoding.UTF16: textEncoder = Encoding.Unicode; break;
 					case StringEncoding.UTF32: textEncoder = Encoding.UTF32; break;
-                    default: textEncoder = Encoding.GetEncoding(stringEncoding.ToString().Replace('_', '-')); break;
+                    default: textEncoder = Encoding.GetEncoding((int)stringEncoding); break;
 				}
-			}
+                lineFeedTested = false;
+                zeroTested = false;
+            }
 		}
 
         /// <summary>
@@ -118,43 +140,38 @@ namespace Cave.IO
         /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
         /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
         /// or EndianType {0} not supported!</exception>
-        public DataWriter(Stream output, StringEncoding encoding, EndianType endian = EndianType.LittleEndian, NewLineMode newLineMode = NewLineMode.LF)
-            : this(output, newLineMode, encoding, endian)
+        public DataWriter(Stream output, StringEncoding encoding = StringEncoding.UTF8, NewLineMode newLineMode = NewLineMode.LF, EndianType endian = EndianType.LittleEndian)
         {
-        }
-
-        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream</summary>
-        /// <param name="output">The stream to write to</param>
-        /// <param name="endian">The endian type.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="newLineMode">New line mode</param>
-        /// <exception cref="ArgumentNullException">output</exception>
-        /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
-        /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
-        /// or EndianType {0} not supported!</exception>
-        public DataWriter(Stream output, EndianType endian, StringEncoding encoding = StringEncoding.UTF8, NewLineMode newLineMode = NewLineMode.LF)
-            : this(output, newLineMode, encoding, endian)
-        {
-        }
-
-        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream</summary>
-        /// <param name="output">The stream to write to</param>
-        /// <param name="newLineMode">New line mode</param>
-        /// <param name="stringEncoding">Encoding to use for characters and strings</param>
-        /// <param name="endian">The endian type.</param>
-        /// <exception cref="ArgumentNullException">output</exception>
-        /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
-        /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
-        /// or EndianType {0} not supported!</exception>
-        public DataWriter(Stream output, NewLineMode newLineMode = NewLineMode.LF, StringEncoding stringEncoding = StringEncoding.UTF8, EndianType endian = EndianType.LittleEndian)
-        {
-            if (output == null) throw new ArgumentNullException("output");
-            if (!output.CanWrite) throw new ArgumentException("Stream does not support writing or is already closed.", "output");
-            BaseStream = output;
+            BaseStream = output ?? throw new ArgumentNullException(nameof(output));
             NewLineMode = newLineMode;
-            StringEncoding = stringEncoding;
+            StringEncoding = encoding != StringEncoding.Undefined ? encoding : throw new ArgumentOutOfRangeException(nameof(encoding));
             EndianType = endian;
-		}
+            if (!BaseStream.CanWrite)
+            {
+                throw new ArgumentException("Stream does not support writing or is already closed.", nameof(output));
+            }
+        }
+
+        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream</summary>
+        /// <param name="output">The stream to write to</param>
+        /// <param name="newLineMode">New line mode</param>
+        /// <param name="encoding">Encoding to use for characters and strings</param>
+        /// <param name="endian">The endian type.</param>
+        /// <exception cref="ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentException">Stream does not support writing or is already closed.;output</exception>
+        /// <exception cref="NotSupportedException">StringEncoding {0} not supported!
+        /// or EndianType {0} not supported!</exception>
+        public DataWriter(Stream output, Encoding encoding, NewLineMode newLineMode = NewLineMode.LF, EndianType endian = EndianType.LittleEndian)
+        {
+            BaseStream = output ?? throw new ArgumentNullException(nameof(output));
+            NewLineMode = newLineMode;
+            Encoding = encoding ?? throw new ArgumentOutOfRangeException(nameof(encoding));
+            EndianType = endian;
+            if (!BaseStream.CanWrite)
+            {
+                throw new ArgumentException("Stream does not support writing or is already closed.", nameof(output));
+            }
+        }
 
         /// <summary>
         /// Flushes the stream
@@ -199,7 +216,11 @@ namespace Cave.IO
         /// <param name="buffer"></param>
         public void Write(byte[] buffer)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             BaseStream.Write(buffer, 0, buffer.Length);
         }
 
@@ -228,7 +249,11 @@ namespace Cave.IO
         /// <param name="count"></param>
         public void Write(byte[] buffer, int index, int count)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             BaseStream.Write(buffer, index, count);
         }
 
@@ -240,7 +265,11 @@ namespace Cave.IO
         /// <param name="count"></param>
         public void WritePrefixed(byte[] buffer, int index, int count)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             Write7BitEncoded32(count);
             BaseStream.Write(buffer, index, count);
         }
@@ -260,7 +289,11 @@ namespace Cave.IO
         /// <param name="chars"></param>
         public int Write(char[] chars)
         {
-            if (chars == null) throw new ArgumentNullException("chars");
+            if (chars == null)
+            {
+                throw new ArgumentNullException("chars");
+            }
+
             byte[] data = textEncoder.GetBytes(chars);
             Write(data);
             return data.Length;
@@ -274,7 +307,11 @@ namespace Cave.IO
         /// <param name="count"></param>
         public int Write(char[] chars, int index, int count)
         {
-            if (chars == null) throw new ArgumentNullException("chars");
+            if (chars == null)
+            {
+                throw new ArgumentNullException("chars");
+            }
+
             byte[] data = textEncoder.GetBytes(chars, index, count);
             Write(data);
             return data.Length;
@@ -379,11 +416,19 @@ namespace Cave.IO
         /// </summary>
         public int WriteLine()
         {
+            if (!lineFeedTested)
+            {
+                if ("\r\n" != textEncoder.GetString(textEncoder.GetBytes("\r\n")))
+                {
+                    throw new InvalidOperationException($"Encoding {textEncoder.EncodingName} does not support WriteLine/ReadLine!");
+                }
+                lineFeedTested = true;
+            }
             switch (NewLineMode)
             {
-                case NewLineMode.CR: BaseStream.WriteByte(13); return 1;
-                case NewLineMode.LF: BaseStream.WriteByte(10); return 1;
-                case NewLineMode.CRLF: BaseStream.WriteByte(13); BaseStream.WriteByte(10); return 2;
+                case NewLineMode.CR: return Write('\r');
+                case NewLineMode.LF: return Write('\n');
+                case NewLineMode.CRLF: return Write(new char[] { '\r', '\n' });
                 default: throw new NotImplementedException(string.Format("NewLineMode {0} undefined!", NewLineMode));
             }
         }
@@ -394,7 +439,11 @@ namespace Cave.IO
         /// <param name="text"></param>
         public int WriteLine(string text)
         {
-            if (text == null) throw new ArgumentNullException("text");
+            if (text == null)
+            {
+                throw new ArgumentNullException("text");
+            }
+
             byte[] data = textEncoder.GetBytes(text);
             Write(data);
             return data.Length + WriteLine();
@@ -404,22 +453,19 @@ namespace Cave.IO
         /// Writes the specified string zero terminated directly to the stream
         /// </summary>
         /// <param name="text"></param>
-        public int WriteZeroTerminated(string text)
+        /// <param name="fieldLength">Fixed field length to use (1..x)</param>
+        public int WriteZeroTerminated(string text, int fieldLength = 0)
         {
+            if (!zeroTested)
+            {
+                if ("\0" != textEncoder.GetString(textEncoder.GetBytes("\0")))
+                {
+                    throw new InvalidOperationException($"Encoding {textEncoder.EncodingName} does not support zero termination!");
+                }
+                zeroTested = true;
+            }
             byte[] data = textEncoder.GetBytes(text + "\0");
-            Write(data);
-            return data.Length;
-        }
-
-        /// <summary>
-        /// Writes the specified string zero terminated directly to the stream
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="fieldLength">Fixed field length to use</param>
-        public int WriteZeroTerminated(string text, int fieldLength)
-        {
-            byte[] data = textEncoder.GetBytes(text + "\0");
-            if (data.Length > fieldLength)
+            if (fieldLength > 0 && data.Length > fieldLength)
             {
                 data[fieldLength - 1] = 0;
                 Write(data, 0, fieldLength);
@@ -427,8 +473,14 @@ namespace Cave.IO
             else
             {
                 Write(data);
-                int zeroBytes = fieldLength - data.Length;
-                if (zeroBytes > 0) Write(new byte[zeroBytes]);
+                if (fieldLength > 0)
+                {
+                    int zeroBytes = fieldLength - data.Length;
+                    if (zeroBytes > 0)
+                    {
+                        Write(new byte[zeroBytes]);
+                    }
+                }
             }
             return Math.Min(data.Length, fieldLength);
         }
@@ -555,7 +607,11 @@ namespace Cave.IO
         /// <param name="array">Array of elements</param>
         public int WriteArray<T>(T[] array) where T : struct
         {
-            if (array == null) throw new ArgumentNullException("array");
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+
             if (array.Length == 0)
             {
                 Write7BitEncoded32(0);
@@ -566,7 +622,10 @@ namespace Cave.IO
             if (array is byte[])
             {
                 bytes = array as byte[];
-                if (bytes == null) throw new PlatformNotSupportedException("Byte array conversion bug! Please update your mono framework!");
+                if (bytes == null)
+                {
+                    throw new PlatformNotSupportedException("Byte array conversion bug! Please update your mono framework!");
+                }
             }
             else
             {

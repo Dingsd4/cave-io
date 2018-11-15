@@ -56,6 +56,11 @@ namespace Cave.IO
     public sealed class CheckedASCIIEncoding : System.Text.Encoding
     {
         /// <summary>
+        /// This is a single byte character encoding
+        /// </summary>
+        public override bool IsSingleByte => true;
+
+        /// <summary>
         /// Calculates the number of bytes produced by encoding a set of characters.
         /// </summary>
         /// <param name="chars">The character array containing the set of characters to encode. </param>
@@ -78,15 +83,27 @@ namespace Cave.IO
         /// <returns>The actual number of bytes written into bytes.</returns>
         public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
-            if (chars == null) throw new ArgumentNullException("chars");
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
+
+            if (chars == null)
+            {
+                throw new ArgumentNullException("chars");
+            }
+
             unchecked
             {
                 int c = 0;
                 for (; c < charCount; c++)
                 {
                     uint value = chars[charIndex + c];
-                    if (value > 127) throw new InvalidDataException(string.Format("Character '{0}' at index '{1}' is not a valid ASCII character!", (char)value, c + charIndex));
+                    if (value > 127)
+                    {
+                        throw new InvalidDataException(string.Format("Character '{0}' at index '{1}' is not a valid ASCII character!", (char)value, c + charIndex));
+                    }
+
                     bytes[byteIndex + c] = (byte)value;
                 }
                 return c;
@@ -102,7 +119,11 @@ namespace Cave.IO
         /// <returns>The number of characters produced by decoding the specified sequence of bytes.</returns>
         public override int GetCharCount(byte[] bytes, int index, int count)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
+
             return count;
         }
 
@@ -117,15 +138,27 @@ namespace Cave.IO
         /// <returns>The actual number of characters written into chars.</returns>
         public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
-            if (chars == null) throw new ArgumentNullException("chars");
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
+
+            if (chars == null)
+            {
+                throw new ArgumentNullException("chars");
+            }
+
             unchecked
             {
                 int c = 0;
                 for (; c < byteCount; c++)
                 {
                     byte b = bytes[byteIndex + c];
-                    if (b > 127) throw new InvalidDataException(string.Format("Byte '{0}' at index '{1}' is not a valid ASCII character!", b, byteIndex + c));
+                    if (b > 127)
+                    {
+                        throw new InvalidDataException(string.Format("Byte '{0}' at index '{1}' is not a valid ASCII character!", b, byteIndex + c));
+                    }
+
                     chars[charIndex + c] = (char)b;
                 }
                 return c;

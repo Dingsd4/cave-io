@@ -122,19 +122,35 @@ namespace Cave.IO
         /// <returns>Returns the read value</returns>
         public static uint Read7BitEncodedUInt32(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             unchecked
             {
                 int b = stream.ReadByte();
                 int count = 1;
-                if (b == -1) throw new EndOfStreamException();
+                if (b == -1)
+                {
+                    throw new EndOfStreamException();
+                }
+
                 uint result = (uint)(b & 0x7F);
                 int bitPos = 7;
                 while (b > 0x7F)
                 {
                     b = stream.ReadByte();
-                    if (++count > 5) throw new InvalidDataException(string.Format("7Bit encoded 32 bit integer may not exceed 5 bytes!"));
-                    if (b == -1) throw new EndOfStreamException();
+                    if (++count > 5)
+                    {
+                        throw new InvalidDataException(string.Format("7Bit encoded 32 bit integer may not exceed 5 bytes!"));
+                    }
+
+                    if (b == -1)
+                    {
+                        throw new EndOfStreamException();
+                    }
+
                     uint value = (uint)(b & 0x7F);
                     result = value << bitPos | result;
                     bitPos += 7;
@@ -164,7 +180,11 @@ namespace Cave.IO
         /// <returns>Returns the number of bytes written</returns>
         public static int Write7BitEncoded(Stream stream, uint value)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             unchecked
             {
                 int i = 1;
@@ -204,7 +224,11 @@ namespace Cave.IO
         /// <returns>Returns the number of bytes written</returns>
         public static int Write7BitEncoded(DataWriter writer, uint value)
         {
-            if (writer == null) throw new ArgumentNullException("writer");
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+
             unchecked
             {
                 int i = 1;
