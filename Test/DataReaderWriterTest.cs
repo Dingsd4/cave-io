@@ -25,6 +25,7 @@ namespace Test
                 }
                 catch (Exception ex)
                 {
+                    if (!Program.WarningsOnly) throw;
                     Console.WriteLine($"Test : warning {id}: TestReaderWriter({stringEncoding}) {ex.Message}");
                 }
             }
@@ -44,6 +45,7 @@ namespace Test
                 }
                 catch (Exception ex)
                 {
+                    if (!Program.WarningsOnly) throw;
                     Console.WriteLine($"Test : warning {id}: TestReaderWriter({encoding.DisplayName}) {ex.Message}");
                 }
             }
@@ -57,17 +59,28 @@ namespace Test
             TestReaderWriter(reader, writer);
         }
 
-        void TestReaderWriter(StringEncoding stringEncoding)
+        public void TestReaderWriter(StringEncoding stringEncoding)
         {
             if (stringEncoding == 0)
             {
                 return;
             }
 
-            var stream = new MemoryStream();
-            DataWriter writer = new DataWriter(stream, stringEncoding);
-            DataReader reader = new DataReader(stream, stringEncoding);
-            TestReaderWriter(reader, writer);
+            //little endian
+            using (var stream = new MemoryStream())
+            {
+                DataWriter writer = new DataWriter(stream, stringEncoding);
+                DataReader reader = new DataReader(stream, stringEncoding);
+                TestReaderWriter(reader, writer);
+            }
+
+            //big endian
+            using (var stream = new MemoryStream())
+            {
+                DataWriter writer = new DataWriter(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                DataReader reader = new DataReader(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                TestReaderWriter(reader, writer);
+            }
         }
 
         void TestReaderWriter(DataReader reader, DataWriter writer)
@@ -88,8 +101,8 @@ namespace Test
             }
             catch
             {
-                char[] charArray = new char[127];
-                for (int i = 0; i < 127; i++) charArray[i] = (char)i;
+                char[] charArray = new char[128];
+                for (int i = 0; i < charArray.Length; i++) charArray[i] = (char)i;
                 randomStringBytes = writer.Encoding.GetBytes(charArray);
                 randomString = writer.Encoding.GetString(randomStringBytes);
             }
@@ -106,9 +119,33 @@ namespace Test
             }
             writer.Write(true);
             writer.Write(false);
-            writer.Write(randomString[0]);
-            writer.Write(randomString[1]);
-            writer.Write(randomString.ToArray());
+            try
+            {
+                writer.Write(randomString[0]);
+            }
+            catch(NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+            try
+            {
+                writer.Write(randomString[1]);
+            }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+            try
+            {
+                writer.Write(randomString.ToArray());
+            }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+
+            var position = writer.BaseStream.Position;
+
             writer.Write(dateTime);
             writer.Write(timeSpan);
             writer.Write(1.23456789m);
@@ -141,8 +178,14 @@ namespace Test
             writer.WritePrefixed("");
             writer.WritePrefixed((string)null);
             writer.WritePrefixed(buffer);
-            writer.WriteZeroTerminated(randomString.Replace("\0", ""));
-            writer.Write(randomString);
+            try
+            {
+                writer.WriteZeroTerminated(randomString.Replace("\0", ""));
+            }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
             writer.Write(buffer);
             writer.WriteEpoch32(dateTime);
             writer.WriteEpoch64(dateTime);
@@ -150,18 +193,26 @@ namespace Test
             try
             {
                 writer.WriteLine();
-                writer.WriteLine("\r\r\r");
+                switch (reader.NewLineMode)
+                {
+                    case NewLineMode.CR: writer.WriteLine("\n\n\n"); break;
+                    case NewLineMode.CRLF:
+                    case NewLineMode.LF: writer.WriteLine("\r\r\r"); break;
+                    default: throw new NotSupportedException();
+                }
                 writer.WriteLine(randomString.Replace("\r", "").Replace("\n", ""));
             }
-            catch (InvalidOperationException)
+            catch (NotSupportedException)
             {
-                if (writer.StringEncoding != StringEncoding.X_EUROPA && writer.Encoding.WebName.ToUpper() != "X-EUROPA")
+                if (writer.StringEncoding == StringEncoding.X_EUROPA || writer.Encoding.IsDead())
                 {
-                    Assert.Fail($"{writer.Encoding.EncodingName} should support writeline!");
+                    supportsWriteLine = false;
                 }
-                supportsWriteLine = false;
+                else
+                {
+                    throw;
+                }
             }
-
             reader.BaseStream.Position = 0;
 
             for (int i = int.MaxValue; i > 0; i >>= 1)
@@ -176,12 +227,36 @@ namespace Test
             }
             Assert.AreEqual(true, reader.ReadBool());
             Assert.AreEqual(false, reader.ReadBool());
-            Assert.AreEqual(randomString[0], reader.ReadChar());
-            Assert.AreEqual(randomString[1], reader.ReadChar());
+            try
+            {
+                Assert.AreEqual(randomString[0], reader.ReadChar());
+            }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+
+            try
+            {
+                Assert.AreEqual(randomString[1], reader.ReadChar());
+            }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+
+            try
             {
                 var readChars = reader.ReadChars(randomString.Length);
                 CollectionAssert.AreEqual(randomString.ToCharArray(), readChars);
             }
+            catch (NotSupportedException)
+            {
+                if (!writer.Encoding.IsDead()) throw;
+            }
+
+            if (reader.BaseStream.Position != position) throw new Exception();
+
             Assert.AreEqual(dateTime, reader.ReadDateTime());
             Assert.AreEqual(timeSpan, reader.ReadTimeSpan());
             Assert.AreEqual(1.23456789m, reader.ReadDecimal());
@@ -214,16 +289,16 @@ namespace Test
             Assert.AreEqual("", reader.ReadString());
             Assert.AreEqual(null, reader.ReadString());
             CollectionAssert.AreEqual(buffer, reader.ReadBytes());
+            try
             {
                 var readString = reader.ReadZeroTerminatedString(8 * randomString.Length);
                 var expected = randomString.Replace("\0", "");
                 CollectionAssert.AreEqual(expected.ToCharArray(), readString.ToCharArray());
                 Assert.AreEqual(expected, readString);
             }
+            catch (NotSupportedException)
             {
-                var readString = reader.ReadString(randomStringBytes.Length);
-                CollectionAssert.AreEqual(randomString.ToCharArray(), readString.ToCharArray());
-                Assert.AreEqual(randomString, readString);
+                if (!writer.Encoding.IsDead()) throw;
             }
             CollectionAssert.AreEqual(buffer, reader.ReadBytes(buffer.Length));
             DateTime epoch = new DateTime(dateTime.Ticks - dateTime.Ticks % TimeSpan.TicksPerSecond);
@@ -232,11 +307,32 @@ namespace Test
             if (supportsWriteLine)
             {
                 Assert.AreEqual("", reader.ReadLine());
-                Assert.AreEqual("\r\r\r", reader.ReadLine());
-                var expected = randomString.Replace("\r", "").Replace("\n", "");
-                var readLine = reader.ReadLine();
-                CollectionAssert.AreEqual(expected.ToCharArray(), readLine.ToCharArray());
-                Assert.AreEqual(expected, readLine);
+
+                switch (reader.NewLineMode)
+                {
+                    case NewLineMode.CR:
+                    {
+                        var expected = "\n\n\n";
+                        var readLine = reader.ReadLine();
+                        Assert.AreEqual(expected, readLine);
+                        break;
+                    }
+                    case NewLineMode.CRLF:
+                    case NewLineMode.LF:
+                    {
+                        var expected = "\r\r\r";
+                        var readLine = reader.ReadLine();
+                        Assert.AreEqual(expected, readLine);
+                        break;
+                    }
+                    default: throw new NotSupportedException();
+                }
+                {
+                    var expected = randomString.Replace("\r", "").Replace("\n", "");
+                    var readLine = reader.ReadLine(randomString.Length * 4);
+                    CollectionAssert.AreEqual(expected.ToCharArray(), readLine.ToCharArray());
+                    Assert.AreEqual(expected, readLine);
+                }
             }
         }
     }

@@ -6,8 +6,13 @@ namespace Test
 {
     class Program
     {
+        public static bool WarningsOnly { get; private set; }
+
         static int Main(string[] args)
         {
+            new DataReaderWriterTest().TestReaderWriter(Cave.IO.StringEncoding.UTF_7);
+
+            WarningsOnly = true;
             var types = typeof(Program).Assembly.GetTypes();
             foreach (var type in types)
             {

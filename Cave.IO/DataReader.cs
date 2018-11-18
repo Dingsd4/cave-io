@@ -48,6 +48,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Cave;
@@ -63,11 +64,10 @@ namespace Cave.IO
     {
         IBitConverter endianDecoder;
         Encoding textDecoder;
-		StringEncoding stringEncoding;
 		EndianType endianType;
-        bool slowTextDecodingWarningSent;
-        bool lineFeedTested;
-        bool zeroTested;
+        byte[] newLineBytes;
+        string newLineChars;
+        byte[] zeroBytes;
 
         #region private string reader implementation for reading strings without buffering
         byte[] ReadCharsUTF8(int charCount)
@@ -171,6 +171,87 @@ namespace Cave.IO
         {
             return ReadBytes(4 * charCount);
         }
+
+        char ReadCharUTF7()
+        {
+            byte b = ReadByte();
+            if (b == '+')
+            {
+                int i = 0;
+                byte[] buf = new byte[8];
+                buf[i++] = b;
+                do
+                {
+                    buf[i++] = b = ReadByte();
+                }
+                while (b != '-');
+                var chars = textDecoder.GetChars(buf, 0, i);
+                if (chars.Length > 1) throw new InvalidDataException("Cannot parse utf8 stateless with unencoded '+' character!");
+                return chars[0];
+            }
+            return (char)b;
+        }
+
+        char[] ReadCharsUTF7(int charCount)
+        {
+            byte[] buf = null;
+            char[] result = new char[charCount];
+            int i = 0;
+            while (i < charCount)
+            {
+                byte b = ReadByte();
+                if (b == '+')
+                {
+                    if (buf == null) buf = new byte[128];
+                    int n = 0;
+                    buf[n++] = b;
+                    while (b != '-')
+                    {
+                        if (n == buf.Length) Array.Resize(ref buf, buf.Length << 1);
+                        buf[n++] = b = ReadByte();
+                    }
+                    var chars = textDecoder.GetChars(buf, 0, n);
+                    if (i + chars.Length > charCount) throw new InvalidDataException("Encoded character length does not match!");
+                    chars.CopyTo(result, i);
+                    i += chars.Length;
+                }
+                else
+                {
+                    result[i++] = (char)b;
+                }
+            }
+            return result;
+        }
+
+        string ReadCharsUTF7(int maxBytes, string endMarker)
+        {
+            string result = "";
+            byte[] buf = null;
+            while (!result.EndsWith(endMarker))
+            {
+                if (--maxBytes < 0) throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                byte b = ReadByte();
+                if (b == '+')
+                {
+                    if (buf == null) buf = new byte[128];
+                    int n = 0;
+                    buf[n++] = b;
+                    while (b != '-')
+                    {
+                        if (n == buf.Length) Array.Resize(ref buf, buf.Length << 1);
+                        if (--maxBytes < 0) throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                        buf[n++] = b = ReadByte();
+                    }
+                    var chars = textDecoder.GetChars(buf, 0, n);
+                    result += new string(chars);
+                }
+                else
+                {
+                    result += (char)b;
+                }
+            }
+            return result.Substring(0, result.Length - endMarker.Length);
+        }
         #endregion
 
         /// <summary>
@@ -183,9 +264,8 @@ namespace Cave.IO
             set
             {
                 textDecoder = value;
-                stringEncoding = StringEncoding.Undefined;
-                lineFeedTested = false;
-                zeroTested = false;
+                newLineBytes = null;
+                zeroBytes = null;
             }
         }
 
@@ -206,7 +286,7 @@ namespace Cave.IO
 				{
 					case EndianType.LittleEndian: endianDecoder = BitConverterLE.Instance; break;
 					case EndianType.BigEndian: endianDecoder = BitConverterBE.Instance; break;
-					default: throw new NotSupportedException(string.Format("EndianType {0} not supported!", endianType));
+					default: throw new NotImplementedException(string.Format("EndianType {0} not implemented!", endianType));
 				}
 			}
 		}
@@ -216,21 +296,21 @@ namespace Cave.IO
         /// </summary>
         public StringEncoding StringEncoding
 		{
-			get => stringEncoding;
+            get => textDecoder.ToStringEncoding();
 			set
 			{
-				stringEncoding = value;
-				switch (stringEncoding)
+				switch (value)
 				{
                     case StringEncoding.Undefined: break;
 					case StringEncoding.ASCII: textDecoder = new CheckedASCIIEncoding(); break;
 					case StringEncoding.UTF8: textDecoder = Encoding.UTF8; break;
 					case StringEncoding.UTF16: textDecoder = Encoding.Unicode; break;
 					case StringEncoding.UTF32: textDecoder = Encoding.UTF32; break;
-                    default: textDecoder = Encoding.GetEncoding((int)stringEncoding); break;
+                    default: textDecoder = Encoding.GetEncoding((int)value); break;
                 }
-                lineFeedTested = false;
-                zeroTested = false;
+                newLineBytes = null;
+                newLineChars = null;
+                zeroBytes = null;
             }
 		}
 
@@ -399,21 +479,27 @@ namespace Cave.IO
         /// </summary>
         public char ReadChar()
         {
-            switch (StringEncoding)
+            if (textDecoder.CodePage == (int)StringEncoding.UTF_7)
             {
-                case StringEncoding.ASCII:
-                    byte b = ReadByte();
-                    if (b > 127)
-                    {
-                        throw new InvalidDataException(string.Format("Byte '{0}' is not a valid ASCII character!", b));
-                    }
-
-                    return (char)b;
-                default:
-                    var result = ReadChars(1);
-                    if (result.Length > 1) throw new InvalidDataException("Decoded characters do not match single character read!");
-                    return result[0];
+                return ReadCharUTF7();
             }
+            if (textDecoder.CodePage == (int)StringEncoding.US_ASCII)
+            {
+                byte b = ReadByte();
+                if (b > 127)
+                {
+                    throw new InvalidDataException(string.Format("Byte '{0}' is not a valid ASCII character!", b));
+                }
+                return (char)b;
+            }
+
+            var result = ReadChars(1);
+            if (result.Length > 1)
+            {
+                throw new InvalidDataException("Decoded characters do not match single character read!");
+            }
+
+            return result[0];
         }
 
         /// <summary>
@@ -426,37 +512,39 @@ namespace Cave.IO
             {
                 return textDecoder.GetChars(ReadBytes(count));
             }
-            switch (StringEncoding)
+            switch (textDecoder.CodePage)
             {
-                case StringEncoding.UTF_8:
-                case StringEncoding.UTF8: return textDecoder.GetChars(ReadCharsUTF8(count));
+                case (int)StringEncoding.UTF_8: return textDecoder.GetChars(ReadCharsUTF8(count));
+                case (int)StringEncoding.UTF_16: return textDecoder.GetChars(ReadCharsUTF16LE(count));
+                case (int)StringEncoding.UTF_16BE: return textDecoder.GetChars(ReadCharsUTF16BE(count));
+                case (int)StringEncoding.UTF_32: return textDecoder.GetChars(ReadCharsUTF32(count));
+                case (int)StringEncoding.UTF_7: return ReadCharsUTF7(count);
+            }
 
-                case StringEncoding.UTF_16:
-                case StringEncoding.UTF16: return textDecoder.GetChars(ReadCharsUTF16LE(count));
-
-                case StringEncoding.UTF_16BE: return textDecoder.GetChars(ReadCharsUTF16BE(count));
-
-                case StringEncoding.UTF_32:
-                case StringEncoding.UTF32: return textDecoder.GetChars(ReadCharsUTF32(count));
-
-                default:
-                    if (!slowTextDecodingWarningSent)
-                    {
-                        Trace.TraceWarning("Using slow text decoding.");
-                        slowTextDecodingWarningSent = true;
-                    }
-                    break;
-			}
+            if (textDecoder.IsDead()) 
+            {
+                throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char reading!");
+            }
 
             var buf = ReadBytes(count);
             var dec = textDecoder.GetDecoder();
             var result = new char[count];
             dec.Convert(buf, 0, count, result, 0, count, false, out int bytesUsed, out int resultCount, out bool complete);
+            if (bytesUsed != buf.Length)
+            {
+                throw new InvalidDataException("Invalid additional data!");
+            }
+
             while (!complete || resultCount < count)
             {
                 int charCountLeft = count - resultCount;
                 buf = ReadBytes(charCountLeft);
                 dec.Convert(buf, 0, charCountLeft, result, resultCount, charCountLeft, false, out bytesUsed, out int charsUsed, out complete);
+                if (bytesUsed != buf.Length)
+                {
+                    throw new InvalidDataException("Invalid additional data!");
+                }
+
                 resultCount += charsUsed;
             }
             return result;
@@ -567,68 +655,46 @@ namespace Cave.IO
         /// <summary>
         /// Reads a string ending with [CR]LF from the stream
         /// </summary>
-        public string ReadLine()
+        public string ReadLine(int maximumBytes = 64 * 1024)
         {
-            if (!lineFeedTested)
+            if (newLineBytes == null)
             {
-                if ("\r\n" != textDecoder.GetString(textDecoder.GetBytes("\r\n")))
+                if (textDecoder.IsDead() || ("\r\n" != textDecoder.GetString(textDecoder.GetBytes("\r\n"))))
                 {
-                    throw new InvalidOperationException($"Encoding {textDecoder.EncodingName} does not support WriteLine/ReadLine!");
+                    throw new NotSupportedException($"Encoding {textDecoder.EncodingName} does not support WriteLine/ReadLine!");
                 }
-                lineFeedTested = true;
-            }
-            List<char> result = new List<char>();
-            bool completed = false;
-            bool waitLF = false;
-            while (!completed)
-            {
-                var chars = ReadChars(1);
-                for (int i = 0; i < chars.Length; i++)
+                switch (NewLineMode)
                 {
-                    if (completed)
+                    case NewLineMode.CR: newLineChars = "\r"; break;
+                    case NewLineMode.LF: newLineChars = "\n"; break;
+                    case NewLineMode.CRLF: newLineChars = "\r\n"; break;
+                    default: throw new NotImplementedException($"NewLineMode {NewLineMode} not implemented!");
+                }
+                newLineBytes = textDecoder.GetBytes(newLineChars);
+            }
+
+            if (textDecoder.CodePage == (int)StringEncoding.UTF_7)
+            {
+                return ReadCharsUTF7(maximumBytes, newLineChars);
+            }
+
+            var buf = new byte[maximumBytes];
+            int offset = 0;
+            while (true)
+            {
+                ReadUntil(buf, ref offset, false, newLineBytes);
+                var s = textDecoder.GetString(buf, 0, offset);
+                int i = s.IndexOf(newLineChars);
+                if (i > -1)
+                {
+                    if (s.Length > i + newLineChars.Length)
                     {
-                        throw new InvalidDataException("Decoding got additional chars after newline!");
+                        throw new InvalidDataException("Decoded data does not match!");
                     }
-                    char c = chars[i];
-                    switch (c)
-                    {
-                        case '\r':
-                            switch (NewLineMode)
-                            {
-                                case NewLineMode.CR: completed = true; continue;
-                                // treat carriage return as regular char if NewLineMode is line feed
-                                case NewLineMode.LF: break;
-                                case NewLineMode.CRLF:
-                                    waitLF = true;
-                                    continue;
-                                default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
-                            }
-                            break;
-                        case '\n':
-                            switch (NewLineMode)
-                            {
-                                case NewLineMode.LF: completed = true; continue;
-                                // treat line feed as regular char if NewLineMode is carriage return
-                                case NewLineMode.CR: break;
-                                case NewLineMode.CRLF:
-                                    if (waitLF)
-                                    {
-                                        completed = true;
-                                        continue;
-                                    }
-                                    break;
-                                default: throw new NotImplementedException("NewLineMode not implemented: " + NewLineMode.ToString());
-                            }
-                            break;
-                    }
-                    result.Add(c);
-                    if (result.Count > 65536)
-                    {
-                        throw new InvalidDataException("Refusing to read more than 64k characters at ReadLine()!");
-                    }
+
+                    return s.Substring(0, i);
                 }
             }
-            return new string(result.ToArray());
         }
 
         /// <summary>
@@ -641,13 +707,13 @@ namespace Cave.IO
             int endMarkLast = endMark.Length - 1;
             while (!completed)
             {
-                if (offset > data.Length)
+                if (offset >= data.Length)
                 {
                     throw new InvalidDataException($"Refusing to read more than {maxCount} bytes at ReadUntil()!");
                 }
 
                 var b = data[offset] = ReadByte();
-                if (offset >= endMark.Length && b == endMark[endMarkLast])
+                if (offset >= endMarkLast && b == endMark[endMarkLast])
                 {
                     completed = true;
                     int i = endMarkLast - 1;
@@ -697,24 +763,31 @@ namespace Cave.IO
         /// </summary>
         public string ReadZeroTerminatedString(int maximumBytes)
         {
-            if (!zeroTested)
+            if (textDecoder.CodePage == (int)StringEncoding.UTF_7)
             {
-                if ("\0" != textDecoder.GetString(textDecoder.GetBytes("\0")))
-                {
-                    throw new InvalidOperationException($"Encoding {textDecoder.EncodingName} does not support zero termination!");
-                }
-                zeroTested = true;
+                return ReadCharsUTF7(maximumBytes, "\0");
             }
 
-            var termination = textDecoder.GetBytes("\0");
+            if (zeroBytes == null)
+            {
+                if (textDecoder.IsDead() || ("\0" != textDecoder.GetString(textDecoder.GetBytes("\0"))))
+                {
+                    throw new NotSupportedException($"Encoding {textDecoder.EncodingName} does not support ReadZeroTerminatedString!");
+                }
+                zeroBytes = textDecoder.GetBytes("\0");
+            }
+
             var buf = new byte[maximumBytes];
             int offset = 0;
             while (true)
             {
-                ReadUntil(buf, ref offset, false, termination);
+                ReadUntil(buf, ref offset, false, zeroBytes);
                 var s = textDecoder.GetString(buf, 0, offset);
                 int i = s.IndexOf('\0');
-                if (i > -1) return s.Substring(0, i);
+                if (i > -1)
+                {
+                    return s.Substring(0, i);
+                }
             }
         }
 
@@ -858,12 +931,16 @@ namespace Cave.IO
             return result;
         }
 
-        /// <summary>Closes the reade and the stream.</summary>
+        /// <summary>Closes the reader and the stream.</summary>
         public void Close()
         {
             if (BaseStream != null)
             {
+#if NETSTANDARD13
+                BaseStream.Dispose();
+#else
                 BaseStream.Close();
+#endif
                 BaseStream = null;
             }
         }

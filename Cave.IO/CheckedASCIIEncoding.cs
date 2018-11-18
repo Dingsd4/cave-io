@@ -46,6 +46,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Cave.IO
 {
@@ -53,8 +54,16 @@ namespace Cave.IO
     /// Provides a ASCIIEncoding replacement throwing errors on invalid data.
     /// The default .net class just ignores invalid characters and replaces them.
     /// </summary>
-    public sealed class CheckedASCIIEncoding : System.Text.Encoding
+    public sealed class CheckedASCIIEncoding : Encoding
     {
+        public override int CodePage => ASCII.CodePage;
+
+        public override string EncodingName => ASCII.EncodingName;
+
+#if !NETSTANDARD13
+        public override string BodyName => ASCII.BodyName;
+#endif
+
         /// <summary>
         /// This is a single byte character encoding
         /// </summary>

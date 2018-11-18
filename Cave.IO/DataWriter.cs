@@ -60,7 +60,6 @@ namespace Cave.IO
     {
         Encoding textEncoder;
         IBitConverter endianEncoder;
-		StringEncoding stringEncoding;
 		EndianType endianType;
         bool lineFeedTested;
         bool zeroTested;
@@ -75,7 +74,6 @@ namespace Cave.IO
             set
             {
                 textEncoder = value;
-                stringEncoding = StringEncoding.Undefined;
                 lineFeedTested = false;
                 zeroTested = false;
             }
@@ -93,7 +91,7 @@ namespace Cave.IO
 				{
 					case EndianType.LittleEndian: endianEncoder = BitConverterLE.Instance; break;
 					case EndianType.BigEndian: endianEncoder = BitConverterBE.Instance; break;
-					default: throw new NotSupportedException(string.Format("EndianType {0} not supported!", endianType));
+					default: throw new NotImplementedException(string.Format("EndianType {0} not implemented!", endianType));
 				}
 			}
 		}
@@ -103,18 +101,17 @@ namespace Cave.IO
 		/// </summary>
 		public StringEncoding StringEncoding
 		{
-			get => stringEncoding;
+            get => textEncoder.ToStringEncoding();
 			set
 			{
-				stringEncoding = value;
-				switch (stringEncoding)
+				switch (value)
 				{
                     case StringEncoding.Undefined: break;
                     case StringEncoding.ASCII: textEncoder = new CheckedASCIIEncoding(); break;
 					case StringEncoding.UTF8: textEncoder = Encoding.UTF8; break;
 					case StringEncoding.UTF16: textEncoder = Encoding.Unicode; break;
 					case StringEncoding.UTF32: textEncoder = Encoding.UTF32; break;
-                    default: textEncoder = Encoding.GetEncoding((int)stringEncoding); break;
+                    default: textEncoder = Encoding.GetEncoding((int)value); break;
 				}
                 lineFeedTested = false;
                 zeroTested = false;
@@ -294,6 +291,11 @@ namespace Cave.IO
                 throw new ArgumentNullException("chars");
             }
 
+            if (textEncoder.IsDead())
+            {
+                throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char writing!");
+            }
+
             byte[] data = textEncoder.GetBytes(chars);
             Write(data);
             return data.Length;
@@ -310,6 +312,11 @@ namespace Cave.IO
             if (chars == null)
             {
                 throw new ArgumentNullException("chars");
+            }
+
+            if (textEncoder.IsDead())
+            {
+                throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char writing!");
             }
 
             byte[] data = textEncoder.GetBytes(chars, index, count);
@@ -390,6 +397,11 @@ namespace Cave.IO
         /// <param name="text">String to write</param>
         public int Write(string text)
         {
+            if (textEncoder.IsDead())
+            {
+                throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char writing!");
+            }
+
             byte[] data = textEncoder.GetBytes(text);
             Write(data);
             return data.Length;
@@ -418,9 +430,9 @@ namespace Cave.IO
         {
             if (!lineFeedTested)
             {
-                if ("\r\n" != textEncoder.GetString(textEncoder.GetBytes("\r\n")))
+                if (textEncoder.IsDead() || ("\r\n" != textEncoder.GetString(textEncoder.GetBytes("\r\n"))))
                 {
-                    throw new InvalidOperationException($"Encoding {textEncoder.EncodingName} does not support WriteLine/ReadLine!");
+                    throw new NotSupportedException($"Encoding {textEncoder.EncodingName} does not support WriteLine/ReadLine!");
                 }
                 lineFeedTested = true;
             }
@@ -458,9 +470,9 @@ namespace Cave.IO
         {
             if (!zeroTested)
             {
-                if ("\0" != textEncoder.GetString(textEncoder.GetBytes("\0")))
+                if (textEncoder.IsDead() || ("\0" != textEncoder.GetString(textEncoder.GetBytes("\0"))))
                 {
-                    throw new InvalidOperationException($"Encoding {textEncoder.EncodingName} does not support zero termination!");
+                    throw new NotSupportedException($"Encoding {textEncoder.EncodingName} does not support WriteZeroTerminated!");
                 }
                 zeroTested = true;
             }
@@ -642,7 +654,11 @@ namespace Cave.IO
         {
             if (BaseStream != null)
             {
+#if NETSTANDARD13
+                BaseStream.Dispose();
+#else
                 BaseStream.Close();
+#endif
                 BaseStream = null;
             }
         }
