@@ -56,11 +56,20 @@ namespace Cave.IO
     /// </summary>
     public sealed class CheckedASCIIEncoding : Encoding
     {
+        /// <summary>
+        /// Gets the code page identifier of the current Encoding.
+        /// </summary>
         public override int CodePage => ASCII.CodePage;
 
+        /// <summary>
+        /// Gets the human-readable description of the current encoding.
+        /// </summary>
         public override string EncodingName => ASCII.EncodingName;
 
 #if !NETSTANDARD13
+        /// <summary>
+        /// Gets a name for the current encoding that can be used with mail agent body tags.
+        /// </summary>
         public override string BodyName => ASCII.BodyName;
 #endif
 

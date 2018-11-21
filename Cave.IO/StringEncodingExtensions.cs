@@ -2,6 +2,9 @@
 
 namespace Cave.IO
 {
+    /// <summary>
+    /// Extensions to the <see cref="StringEncoding"/> enum.
+    /// </summary>
     public static class StringEncodingExtensions
     {
         public static bool IsDead(this Encoding encoding)
