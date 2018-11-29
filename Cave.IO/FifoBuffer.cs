@@ -52,10 +52,10 @@ using System.Runtime.InteropServices;
 
 namespace Cave.IO
 {
-	/// <summary>
-	/// Provides a simple byte[] buffer queue able to work with buffers of any size
-	/// </summary>
-	public sealed class FifoBuffer
+    /// <summary>
+    /// Provides a simple byte[] buffer queue able to work with buffers of any size
+    /// </summary>
+    public sealed class FifoBuffer
     {
         /// <summary>
         /// Reads a byte array of specified length from the source pointer starting at the specified byte offset
