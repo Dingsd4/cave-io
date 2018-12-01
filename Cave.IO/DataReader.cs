@@ -1,70 +1,21 @@
-#region CopyRight 2018
-/*
-    Copyright (c) 2003-2018 Andreas Rohleder (andreas@rohleder.cc)
-    All rights reserved
-*/
-#endregion
-#region License LGPL-3
-/*
-    This program/library/sourcecode is free software; you can redistribute it
-    and/or modify it under the terms of the GNU Lesser General Public License
-    version 3 as published by the Free Software Foundation subsequent called
-    the License.
-
-    You may not use this program/library/sourcecode except in compliance
-    with the License. The License is included in the LICENSE file
-    found at the installation directory or the distribution package.
-
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-#endregion
-#region Authors & Contributors
-/*
-   Author:
-     Andreas Rohleder <andreas@rohleder.cc>
-
-   Contributors:
- */
-#endregion Authors & Contributors
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using Cave;
 
 namespace Cave.IO
 {
-	/// <summary>
-	/// Provides a new little endian binary reader implementation (a combination of streamreader and binaryreader).
-	/// This class is not threadsafe and does not buffer anything nor needs flushing.
-	/// You can access the basestream at any time with any mode of operation (read, write, seek, ...).
-	/// </summary>
-	public sealed class DataReader
+    /// <summary>
+    /// Provides a new little endian binary reader implementation (a combination of streamreader and binaryreader).
+    /// This class is not threadsafe and does not buffer anything nor needs flushing.
+    /// You can access the basestream at any time with any mode of operation (read, write, seek, ...).
+    /// </summary>
+    public sealed class DataReader
     {
         IBitConverter endianDecoder;
         Encoding textDecoder;
-		EndianType endianType;
+        EndianType endianType;
         byte[] newLineBytes;
         string newLineChars;
         byte[] zeroBytes;
@@ -113,7 +64,7 @@ namespace Cave.IO
                         //4th byte
                         result.Add(ReadByte());
                     }
-                    
+
                     #endregion
                 }
 
@@ -185,8 +136,12 @@ namespace Cave.IO
                     buf[i++] = b = ReadByte();
                 }
                 while (b != '-');
-                var chars = textDecoder.GetChars(buf, 0, i);
-                if (chars.Length > 1) throw new InvalidDataException("Cannot parse utf8 stateless with unencoded '+' character!");
+                char[] chars = textDecoder.GetChars(buf, 0, i);
+                if (chars.Length > 1)
+                {
+                    throw new InvalidDataException("Cannot parse utf8 stateless with unencoded '+' character!");
+                }
+
                 return chars[0];
             }
             return (char)b;
@@ -202,16 +157,28 @@ namespace Cave.IO
                 byte b = ReadByte();
                 if (b == '+')
                 {
-                    if (buf == null) buf = new byte[128];
+                    if (buf == null)
+                    {
+                        buf = new byte[128];
+                    }
+
                     int n = 0;
                     buf[n++] = b;
                     while (b != '-')
                     {
-                        if (n == buf.Length) Array.Resize(ref buf, buf.Length << 1);
+                        if (n == buf.Length)
+                        {
+                            Array.Resize(ref buf, buf.Length << 1);
+                        }
+
                         buf[n++] = b = ReadByte();
                     }
-                    var chars = textDecoder.GetChars(buf, 0, n);
-                    if (i + chars.Length > charCount) throw new InvalidDataException("Encoded character length does not match!");
+                    char[] chars = textDecoder.GetChars(buf, 0, n);
+                    if (i + chars.Length > charCount)
+                    {
+                        throw new InvalidDataException("Encoded character length does not match!");
+                    }
+
                     chars.CopyTo(result, i);
                     i += chars.Length;
                 }
@@ -229,20 +196,36 @@ namespace Cave.IO
             byte[] buf = null;
             while (!result.EndsWith(endMarker))
             {
-                if (--maxBytes < 0) throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                if (--maxBytes < 0)
+                {
+                    throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                }
+
                 byte b = ReadByte();
                 if (b == '+')
                 {
-                    if (buf == null) buf = new byte[128];
+                    if (buf == null)
+                    {
+                        buf = new byte[128];
+                    }
+
                     int n = 0;
                     buf[n++] = b;
                     while (b != '-')
                     {
-                        if (n == buf.Length) Array.Resize(ref buf, buf.Length << 1);
-                        if (--maxBytes < 0) throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                        if (n == buf.Length)
+                        {
+                            Array.Resize(ref buf, buf.Length << 1);
+                        }
+
+                        if (--maxBytes < 0)
+                        {
+                            throw new InvalidDataException($"Exceeded maximum byte count during read.");
+                        }
+
                         buf[n++] = b = ReadByte();
                     }
-                    var chars = textDecoder.GetChars(buf, 0, n);
+                    char[] chars = textDecoder.GetChars(buf, 0, n);
                     result += new string(chars);
                 }
                 else
@@ -272,47 +255,47 @@ namespace Cave.IO
         /// <summary>
         /// Provides the new line mode used
         /// </summary>
-        public NewLineMode NewLineMode { get; set; } 
+        public NewLineMode NewLineMode { get; set; }
 
         /// <summary>Gets the endian encoder type.</summary>
         /// <value>The endian encoder type.</value>
         public EndianType EndianType
-		{
-			get => endianType;
-			set
-			{
-				endianType = value;
-				switch (endianType)
-				{
-					case EndianType.LittleEndian: endianDecoder = BitConverterLE.Instance; break;
-					case EndianType.BigEndian: endianDecoder = BitConverterBE.Instance; break;
-					default: throw new NotImplementedException(string.Format("EndianType {0} not implemented!", endianType));
-				}
-			}
-		}
+        {
+            get => endianType;
+            set
+            {
+                endianType = value;
+                switch (endianType)
+                {
+                    case EndianType.LittleEndian: endianDecoder = BitConverterLE.Instance; break;
+                    case EndianType.BigEndian: endianDecoder = BitConverterBE.Instance; break;
+                    default: throw new NotImplementedException(string.Format("EndianType {0} not implemented!", endianType));
+                }
+            }
+        }
 
         /// <summary>
         /// Encoding to use for characters and strings
         /// </summary>
         public StringEncoding StringEncoding
-		{
+        {
             get => textDecoder.ToStringEncoding();
-			set
-			{
-				switch (value)
-				{
+            set
+            {
+                switch (value)
+                {
                     case StringEncoding.Undefined: break;
-					case StringEncoding.ASCII: textDecoder = new CheckedASCIIEncoding(); break;
-					case StringEncoding.UTF8: textDecoder = Encoding.UTF8; break;
-					case StringEncoding.UTF16: textDecoder = Encoding.Unicode; break;
-					case StringEncoding.UTF32: textDecoder = Encoding.UTF32; break;
+                    case StringEncoding.ASCII: textDecoder = new CheckedASCIIEncoding(); break;
+                    case StringEncoding.UTF8: textDecoder = Encoding.UTF8; break;
+                    case StringEncoding.UTF16: textDecoder = Encoding.Unicode; break;
+                    case StringEncoding.UTF32: textDecoder = Encoding.UTF32; break;
                     default: textDecoder = Encoding.GetEncoding((int)value); break;
                 }
                 newLineBytes = null;
                 newLineChars = null;
                 zeroBytes = null;
             }
-		}
+        }
 
         /// <summary>
         /// Provides access to the base stream
@@ -404,13 +387,7 @@ namespace Cave.IO
         /// Obtains the available bytes for reading.
         /// Attention: the BaseStream has to support the Length and Position properties.
         /// </summary>
-        public long Available
-        {
-            get
-            {
-                return BaseStream.Length - BaseStream.Position;
-            }
-        }
+        public long Available => BaseStream.Length - BaseStream.Position;
 
         /// <summary>
         /// Writes the specified value directly to the stream
@@ -493,7 +470,7 @@ namespace Cave.IO
                 return (char)b;
             }
 
-            var result = ReadChars(1);
+            char[] result = ReadChars(1);
             if (result.Length > 1)
             {
                 throw new InvalidDataException("Decoded characters do not match single character read!");
@@ -521,14 +498,14 @@ namespace Cave.IO
                 case (int)StringEncoding.UTF_7: return ReadCharsUTF7(count);
             }
 
-            if (textDecoder.IsDead()) 
+            if (textDecoder.IsDead())
             {
                 throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char reading!");
             }
 
-            var buf = ReadBytes(count);
-            var dec = textDecoder.GetDecoder();
-            var result = new char[count];
+            byte[] buf = ReadBytes(count);
+            Decoder dec = textDecoder.GetDecoder();
+            char[] result = new char[count];
             dec.Convert(buf, 0, count, result, 0, count, false, out int bytesUsed, out int resultCount, out bool complete);
             if (bytesUsed != buf.Length)
             {
@@ -678,12 +655,12 @@ namespace Cave.IO
                 return ReadCharsUTF7(maximumBytes, newLineChars);
             }
 
-            var buf = new byte[maximumBytes];
+            byte[] buf = new byte[maximumBytes];
             int offset = 0;
             while (true)
             {
                 ReadUntil(buf, ref offset, false, newLineBytes);
-                var s = textDecoder.GetString(buf, 0, offset);
+                string s = textDecoder.GetString(buf, 0, offset);
                 int i = s.IndexOf(newLineChars);
                 if (i > -1)
                 {
@@ -712,7 +689,7 @@ namespace Cave.IO
                     throw new InvalidDataException($"Refusing to read more than {maxCount} bytes at ReadUntil()!");
                 }
 
-                var b = data[offset] = ReadByte();
+                byte b = data[offset] = ReadByte();
                 if (offset >= endMarkLast && b == endMark[endMarkLast])
                 {
                     completed = true;
@@ -777,12 +754,12 @@ namespace Cave.IO
                 zeroBytes = textDecoder.GetBytes("\0");
             }
 
-            var buf = new byte[maximumBytes];
+            byte[] buf = new byte[maximumBytes];
             int offset = 0;
             while (true)
             {
                 ReadUntil(buf, ref offset, false, zeroBytes);
-                var s = textDecoder.GetString(buf, 0, offset);
+                string s = textDecoder.GetString(buf, 0, offset);
                 int i = s.IndexOf('\0');
                 if (i > -1)
                 {
@@ -821,7 +798,7 @@ namespace Cave.IO
         public DateTime ReadDateTime()
         {
             DateTimeKind kind = (DateTimeKind)Read7BitEncodedInt32();
-            switch(kind)
+            switch (kind)
             {
                 case DateTimeKind.Local:
                 case DateTimeKind.Unspecified:

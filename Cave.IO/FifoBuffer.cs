@@ -1,50 +1,3 @@
-#region CopyRight 2018
-/*
-    Copyright (c) 2003-2018 Andreas Rohleder (andreas@rohleder.cc)
-    All rights reserved
-*/
-#endregion
-#region License LGPL-3
-/*
-    This program/library/sourcecode is free software; you can redistribute it
-    and/or modify it under the terms of the GNU Lesser General Public License
-    version 3 as published by the Free Software Foundation subsequent called
-    the License.
-
-    You may not use this program/library/sourcecode except in compliance
-    with the License. The License is included in the LICENSE file
-    found at the installation directory or the distribution package.
-
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-#endregion
-#region Authors & Contributors
-/*
-   Author:
-     Andreas Rohleder <andreas@rohleder.cc>
-
-   Contributors:
-
- */
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +34,11 @@ namespace Cave.IO
         /// <param name="buffer">The buffer to add (will not be copied)</param>
         public void Prepend(byte[] buffer)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             m_Buffer.AddFirst(buffer);
             m_Length += buffer.Length;
         }
@@ -93,7 +50,11 @@ namespace Cave.IO
         /// <param name="count">The number of bytes to enqueue</param>
         public void Enqueue(Stream stream, int count)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             byte[] buffer = new byte[count];
             int len = stream.Read(buffer, 0, count);
             if (len == count)
@@ -112,7 +73,11 @@ namespace Cave.IO
         /// <param name="buffer">The buffer to add (will not be copied)</param>
         public void Enqueue(byte[] buffer)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             m_Buffer.AddLast(buffer);
             m_Length += buffer.Length;
         }
@@ -125,7 +90,11 @@ namespace Cave.IO
         /// <param name="count">The number of bytes to copy</param>
         public void Enqueue(byte[] buffer, int offset, int count)
         {
-            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             byte[] newBuffer = new byte[count];
             Array.Copy(buffer, offset, newBuffer, 0, count);
             Enqueue(newBuffer);
@@ -168,7 +137,11 @@ namespace Cave.IO
         /// <returns>Returns a new buffer of the specified size</returns>
         public byte[] Peek(int size)
         {
-            if (Length < size) throw new EndOfStreamException();
+            if (Length < size)
+            {
+                throw new EndOfStreamException();
+            }
+
             byte[] result = new byte[size];
             int pos = 0;
             LinkedListNode<byte[]> node = m_Buffer.First;
@@ -190,7 +163,11 @@ namespace Cave.IO
         /// <param name="ptr">The location to start writing at</param>
         public void Peek(int size, IntPtr ptr)
         {
-            if (Length < size) throw new EndOfStreamException();
+            if (Length < size)
+            {
+                throw new EndOfStreamException();
+            }
+
             int pos = 0;
             LinkedListNode<byte[]> node = m_Buffer.First;
             while (pos < size)
@@ -223,7 +200,11 @@ namespace Cave.IO
         /// <returns>Returns a dequeued buffer of the specified size</returns>
         public byte[] Dequeue(int size)
         {
-            if (Length < size) throw new EndOfStreamException();
+            if (Length < size)
+            {
+                throw new EndOfStreamException();
+            }
+
             byte[] result = new byte[size];
             int pos = 0;
             while (pos < size)
@@ -231,7 +212,7 @@ namespace Cave.IO
                 byte[] current = Dequeue();
                 int len = Math.Min(current.Length, size - pos);
                 Array.Copy(current, 0, result, pos, len);
-                pos+= len;
+                pos += len;
                 if (len < current.Length)
                 {
                     byte[] remainder = new byte[current.Length - len];
@@ -250,7 +231,11 @@ namespace Cave.IO
         /// <param name="ptr">The location to start writing at</param>
         public void Dequeue(int size, IntPtr ptr)
         {
-            if (Length < size) throw new EndOfStreamException();
+            if (Length < size)
+            {
+                throw new EndOfStreamException();
+            }
+
             int pos = 0;
             while (pos < size)
             {
@@ -297,6 +282,6 @@ namespace Cave.IO
         /// <summary>
         /// Obtains number of bytes currently buffered
         /// </summary>
-        public int Length { get { return m_Length; } }
+        public int Length => m_Length;
     }
 }

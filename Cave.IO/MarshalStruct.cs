@@ -19,10 +19,18 @@ namespace Cave.IO
         /// <returns>Returns a new struct instance</returns>
         public static T Read<T>(Stream stream) where T : struct
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             int size = Marshal.SizeOf(typeof(T));
             byte[] buffer = new byte[size];
-            if (stream.Read(buffer, 0, size) < size) throw new EndOfStreamException();
+            if (stream.Read(buffer, 0, size) < size)
+            {
+                throw new EndOfStreamException();
+            }
+
             GCHandle l_Handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             T result = (T)Marshal.PtrToStructure(l_Handle.AddrOfPinnedObject(), typeof(T));
             l_Handle.Free();
@@ -37,7 +45,11 @@ namespace Cave.IO
         /// <param name="item">the struct to write</param>
         public static void Write<T>(Stream stream, T item) where T : struct
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             int size = Marshal.SizeOf(item);
             byte[] data = new byte[size];
             GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
@@ -55,9 +67,17 @@ namespace Cave.IO
         /// <returns></returns>
         public static T Read<T>(byte[] data, int offset) where T : struct
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             int size = Marshal.SizeOf(typeof(T));
-            if (offset + size > data.Length) throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset+Size!");
+            if (offset + size > data.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset+Size!");
+            }
+
             GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             IntPtr addr = new IntPtr(l_Handle.AddrOfPinnedObject().ToInt64() + offset);
             T result = (T)Marshal.PtrToStructure(addr, typeof(T));
@@ -74,9 +94,17 @@ namespace Cave.IO
         /// <param name="offset">Offset at the byte buffer to start writing</param>
         public static void Write<T>(T item, byte[] data, int offset) where T : struct
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             int size = Marshal.SizeOf(item);
-            if (offset + size > data.Length) throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset + Size!");
+            if (offset + size > data.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset + Size!");
+            }
+
             GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             IntPtr addr = new IntPtr(l_Handle.AddrOfPinnedObject().ToInt64() + offset);
             Marshal.StructureToPtr(item, addr, false);
@@ -107,10 +135,18 @@ namespace Cave.IO
         /// <returns>returns a new struct</returns>
         public static T GetStruct<T>(byte[] data) where T : struct
         {
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+
             Type type = typeof(T);
             int size = Marshal.SizeOf(type);
-            if (size != data.Length) throw new InvalidDataException("Buffer length does not match struct size!");
+            if (size != data.Length)
+            {
+                throw new InvalidDataException("Buffer length does not match struct size!");
+            }
+
             GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             T result = (T)Marshal.PtrToStructure(l_Handle.AddrOfPinnedObject(), type);
             l_Handle.Free();
@@ -122,13 +158,21 @@ namespace Cave.IO
         /// <returns></returns>
         public static string ReadUtf8(IntPtr ptr)
         {
-            if (ptr == IntPtr.Zero) return null;
+            if (ptr == IntPtr.Zero)
+            {
+                return null;
+            }
+
             List<byte> data = new List<byte>();
             int i = 0;
             while (true)
             {
                 byte b = Marshal.ReadByte(ptr, i++);
-                if (b == 0) break;
+                if (b == 0)
+                {
+                    break;
+                }
+
                 data.Add(b);
             }
             return Encoding.UTF8.GetString(data.ToArray());
@@ -140,7 +184,11 @@ namespace Cave.IO
         /// <returns></returns>
         public static string[] ReadUtf8Strings(IntPtr ptr)
         {
-            if (ptr == IntPtr.Zero) return null;
+            if (ptr == IntPtr.Zero)
+            {
+                return null;
+            }
+
             List<string> strings = new List<string>();
             List<byte> current = new List<byte>();
             for (int i = 0; ; i++)
@@ -148,7 +196,11 @@ namespace Cave.IO
                 byte b = Marshal.ReadByte(ptr, i);
                 if (b == 0)
                 {
-                    if (current.Count == 0) break;
+                    if (current.Count == 0)
+                    {
+                        break;
+                    }
+
                     strings.Add(Encoding.UTF8.GetString(current.ToArray()));
                     current.Clear();
                     continue;

@@ -1,63 +1,16 @@
-#region CopyRight 2018
-/*
-    Copyright (c) 2003-2018 Andreas Rohleder (andreas@rohleder.cc)
-    All rights reserved
-*/
-#endregion
-#region License LGPL-3
-/*
-    This program/library/sourcecode is free software; you can redistribute it
-    and/or modify it under the terms of the GNU Lesser General Public License
-    version 3 as published by the Free Software Foundation subsequent called
-    the License.
-
-    You may not use this program/library/sourcecode except in compliance
-    with the License. The License is included in the LICENSE file
-    found at the installation directory or the distribution package.
-
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-#endregion
-#region Authors & Contributors
-/*
-   Author:
-     Andreas Rohleder <andreas@rohleder.cc>
-
-   Contributors:
-
- */
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace Cave.IO
 {
-	/// <summary>
-	/// Provides a fifo buffer for byte[] blocks readable as stream.
-	/// New buffers can be appended to the end of the stream and read like a stream.
-	/// The performance of this class is best with medium sized buffers (1kiB - 64kiB)
-	/// </summary>
-	public class FifoStream : Stream
-	{
+    /// <summary>
+    /// Provides a fifo buffer for byte[] blocks readable as stream.
+    /// New buffers can be appended to the end of the stream and read like a stream.
+    /// The performance of this class is best with medium sized buffers (1kiB - 64kiB)
+    /// </summary>
+    public class FifoStream : Stream
+    {
         int m_RealLength = 0;
         int m_RealPosition = 0;
         int m_CurrentBufferPosition = 0;
@@ -72,17 +25,17 @@ namespace Cave.IO
         /// <summary>
         /// This stream can always be read
         /// </summary>
-        public override bool CanRead { get { return true; } }
+        public override bool CanRead => true;
 
         /// <summary>
         /// This stream can seek
         /// </summary>
-        public override bool CanSeek { get { return true; } }
+        public override bool CanSeek => true;
 
         /// <summary>
         /// This stream can not be written
         /// </summary>
-        public override bool CanWrite { get { return false; } }
+        public override bool CanWrite => false;
 
         /// <summary>
         /// Does nothing
@@ -92,21 +45,15 @@ namespace Cave.IO
         /// <summary>
         /// provides the current length of the stream
         /// </summary>
-        public override long Length { get { return m_RealLength; } }
+        public override long Length => m_RealLength;
 
         /// <summary>
         /// provides the current read/write position
         /// </summary>
         public override long Position
         {
-            get
-            {
-                return m_RealPosition;
-            }
-            set
-            {
-                Seek(value, SeekOrigin.Begin);
-            }
+            get => m_RealPosition;
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         /// <summary>
@@ -131,7 +78,7 @@ namespace Cave.IO
             lock (this)
             {
                 int index = 0;
-                var node = m_CurrentBuffer;
+                LinkedListNode<byte[]> node = m_CurrentBuffer;
                 int pos = m_CurrentBufferPosition;
                 while (node != null)
                 {
@@ -156,7 +103,7 @@ namespace Cave.IO
         {
             lock (this)
             {
-                var node = m_CurrentBuffer;
+                LinkedListNode<byte[]> node = m_CurrentBuffer;
                 int pos = m_CurrentBufferPosition;
                 while (node != null)
                 {
@@ -183,7 +130,7 @@ namespace Cave.IO
             {
                 int index = 0;
                 int checkIndex = 0;
-                var node = m_CurrentBuffer;
+                LinkedListNode<byte[]> node = m_CurrentBuffer;
                 int pos = m_CurrentBufferPosition;
                 while (node != null)
                 {
@@ -212,11 +159,11 @@ namespace Cave.IO
         /// <param name="data">The data.</param>
         /// <returns><c>true</c> if the buffer contains the specified data; otherwise, <c>false</c>.</returns>
         public bool Contains(byte[] data)
-		{
+        {
             lock (this)
             {
                 int checkIndex = 0;
-                var node = m_CurrentBuffer;
+                LinkedListNode<byte[]> node = m_CurrentBuffer;
                 int pos = m_CurrentBufferPosition;
                 while (node != null)
                 {
@@ -239,13 +186,13 @@ namespace Cave.IO
                 }
                 return false;
             }
-		}
+        }
 
-		/// <summary>
-		/// Peeks at the next byte in the buffer. Returns -1 if no more data available.
-		/// </summary>
-		/// <returns></returns>
-		public virtual int PeekByte()
+        /// <summary>
+        /// Peeks at the next byte in the buffer. Returns -1 if no more data available.
+        /// </summary>
+        /// <returns></returns>
+        public virtual int PeekByte()
         {
             lock (this)
             {
@@ -586,16 +533,16 @@ namespace Cave.IO
             }
         }
 
-		/// <summary>Retrieves all data at the buffer as array (peek).</summary>
-		/// <returns></returns>
-		public byte[] ToArray()
-		{
+        /// <summary>Retrieves all data at the buffer as array (peek).</summary>
+        /// <returns></returns>
+        public byte[] ToArray()
+        {
             lock (this)
             {
                 byte[] result = new byte[Available];
                 {
                     int start = 0;
-                    var node = m_CurrentBuffer;
+                    LinkedListNode<byte[]> node = m_CurrentBuffer;
                     if (node != null)
                     {
                         int count = node.Value.Length - m_CurrentBufferPosition;
@@ -612,7 +559,7 @@ namespace Cave.IO
                 }
                 return result;
             }
-		}
+        }
 
         /// <summary>
         /// Clears the buffer

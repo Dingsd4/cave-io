@@ -1,49 +1,3 @@
-#region CopyRight 2018
-/*
-    Copyright (c) 2003-2018 Andreas Rohleder (andreas@rohleder.cc)
-    All rights reserved
-*/
-#endregion
-#region License LGPL-3
-/*
-    This program/library/sourcecode is free software; you can redistribute it
-    and/or modify it under the terms of the GNU Lesser General Public License
-    version 3 as published by the Free Software Foundation subsequent called
-    the License.
-
-    You may not use this program/library/sourcecode except in compliance
-    with the License. The License is included in the LICENSE file
-    found at the installation directory or the distribution package.
-
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
-
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-#endregion
-#region Authors & Contributors
-/*
-   Author:
-     Andreas Rohleder <andreas@rohleder.cc>
-
-   Contributors:
- */
-#endregion
-
 using System;
 using System.IO;
 
@@ -70,7 +24,11 @@ namespace Cave.IO
         /// <param name="seek">The start position of the substream relative to the current stream position</param>
         public SubStream(Stream stream, int seek)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             if (seek != 0)
             {
                 if (stream.CanSeek)
@@ -83,7 +41,10 @@ namespace Cave.IO
                 }
                 else
                 {
-                    if (seek != stream.Read(new byte[seek], 0, seek)) throw new EndOfStreamException();
+                    if (seek != stream.Read(new byte[seek], 0, seek))
+                    {
+                        throw new EndOfStreamException();
+                    }
                 }
             }
             m_Stream = stream;
@@ -92,26 +53,17 @@ namespace Cave.IO
         /// <summary>
         /// Obtains whether the stream can be read or not
         /// </summary>
-        public override bool CanRead
-        {
-            get { return m_Stream.CanRead; }
-        }
+        public override bool CanRead => m_Stream.CanRead;
 
         /// <summary>
         /// Obtains whether the stream can seek or not
         /// </summary>
-        public override bool CanSeek
-        {
-            get { return m_Stream.CanSeek; }
-        }
+        public override bool CanSeek => m_Stream.CanSeek;
 
         /// <summary>
         /// Obtains whether the stream can be written or not
         /// </summary>
-        public override bool CanWrite
-        {
-            get { return m_Stream.CanWrite; }
-        }
+        public override bool CanWrite => m_Stream.CanWrite;
 
         /// <summary>
         /// flushes the stream
@@ -124,24 +76,15 @@ namespace Cave.IO
         /// <summary>
         /// Obtains the length of the stream
         /// </summary>
-        public override long Length
-        {
-            get { return m_Stream.Length - m_Stream.Position + m_Position; }
-        }
+        public override long Length => m_Stream.Length - m_Stream.Position + m_Position;
 
         /// <summary>
         /// Gets/sets the current read/write position
         /// </summary>
         public override long Position
         {
-            get
-            {
-                return m_Position;
-            }
-            set
-            {
-                Seek(value, SeekOrigin.Begin);
-            }
+            get => m_Position;
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         /// <summary>
@@ -169,7 +112,11 @@ namespace Cave.IO
             switch (origin)
             {
                 case SeekOrigin.Begin:
-                    if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+                    if (offset < 0)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(offset));
+                    }
+
                     long result = Seek(offset - m_Position, origin);
                     m_Position = offset;
                     return result;
