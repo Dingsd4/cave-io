@@ -1,7 +1,7 @@
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides supported string encodings
+    /// Provides supported string encodings.
     /// </summary>
     public enum StringEncoding
     {

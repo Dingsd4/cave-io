@@ -12,41 +12,47 @@ namespace Cave.IO
     {
         /// <summary>Opens a new <see cref="ResistantFileStream"/> for sequential reading with a buffer of 128kib.</summary>
         /// <param name="filename">The filename.</param>
-        /// <returns>Returns a new <see cref="ResistantFileStream"/> instance</returns>
+        /// <returns>Returns a new <see cref="ResistantFileStream"/> instance.</returns>
         public static ResistantFileStream OpenSequentialRead(string filename)
         {
             return new ResistantFileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, FileOptions.SequentialScan);
         }
 
         #region private implementation
-        volatile FileStream m_Stream;
-        long m_Length;
-        long m_Position;
-        int m_MaxErrors = 50;
+        volatile FileStream stream;
+        long streamLength;
+        long streamPosition;
 
         void OpenStream()
         {
-            if (m_Stream != null)
+            if (stream != null)
             {
-                try { m_Stream.Dispose(); } catch { }
+                try
+                {
+                    stream.Dispose();
+                }
+                catch
+                {
+                }
             }
 
-            m_Stream = new FileStream(FileName, FileMode, FileAccess, FileShare, 128 * 1024, FileOptions)
+            stream = new FileStream(FileName, FileMode, FileAccess, FileShare, 128 * 1024, FileOptions)
             {
-                Position = m_Position
+                Position = streamPosition,
             };
-            m_Length = m_Stream.Length;
+            streamLength = stream.Length;
         }
 
-        T Resistant<T>(Func<T> function) where T : struct
+        T Resistant<T>(Func<T> function)
+            where T : struct
         {
             Exception exception = null;
-            for (int i = 0; i < m_MaxErrors; i++)
+            for (int i = 0; i < FileMaxErrors; i++)
             {
                 try
                 {
                     T result = function();
-                    m_Position = m_Stream.Position;
+                    streamPosition = stream.Position;
                     return result;
                 }
                 catch (Exception ex)
@@ -72,24 +78,31 @@ namespace Cave.IO
         void Resistant(Action action)
         {
             Exception exception = null;
-            for (int i = 0; i < m_MaxErrors; i++)
+            for (int i = 0; i < FileMaxErrors; i++)
             {
                 try
                 {
                     action();
-                    m_Position = m_Stream.Position;
+                    streamPosition = stream.Position;
                 }
                 catch (Exception ex)
                 {
                     exception = ex;
-                    try { OpenStream(); } catch { }
+                    try
+                    {
+                        OpenStream();
+                    }
+                    catch
+                    {
+                    }
                 }
             }
             throw exception;
         }
         #endregion
 
-        #region additional properties        
+        #region additional properties
+
         /// <summary>Gets the name of the file.</summary>
         /// <value>The name of the file.</value>
         public string FileName { get; private set; }
@@ -113,7 +126,7 @@ namespace Cave.IO
         /// <summary>Gets or sets the file access maximum error rate.</summary>
         /// <remarks>Any operation needing more than <see cref="FileMaxErrors"/> retries will fail with the original exception.</remarks>
         /// <value>The file maximum error rate.</value>
-        public int FileMaxErrors { get => m_MaxErrors; set => m_MaxErrors = value; }
+        public int FileMaxErrors { get; set; } = 50;
 
         /// <summary>Gets the file stream.</summary>
         /// <value>The file stream.</value>
@@ -122,17 +135,18 @@ namespace Cave.IO
         {
             get
             {
-                if (m_Stream == null)
+                if (stream == null)
                 {
                     throw new ObjectDisposedException(nameof(BaseStream));
                 }
 
-                return m_Stream;
+                return stream;
             }
         }
         #endregion
 
-        #region constructor    
+        #region constructor
+
         /// <summary>Initializes a new instance of the <see cref="ResistantFileStream"/> class.</summary>
         /// <param name="filename">The filename.</param>
         /// <param name="mode">The mode.</param>
@@ -150,46 +164,60 @@ namespace Cave.IO
         }
         #endregion
 
-        #region protected overrides        
+        #region protected overrides
+
         /// <summary>
         /// Gibt die vom <see cref="T:System.IO.Stream" /> verwendeten nicht verwalteten Ressourcen und optional auch die verwalteten Ressourcen frei.
         /// </summary>
         /// <param name="disposing">true, um sowohl verwaltete als auch nicht verwaltete Ressourcen freizugeben. false, um ausschließlich nicht verwaltete Ressourcen freizugeben.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "m_Stream")]
         protected override void Dispose(bool disposing)
         {
-            try { m_Stream?.Dispose(); m_Stream = null; } catch { }
+            try
+            {
+                if (stream != null)
+                {
+                    stream.Dispose();
+                    stream = null;
+                }
+            }
+            catch
+            {
+            }
             base.Dispose(disposing);
         }
 
         #endregion
 
-        #region stream implementation        
+        #region stream implementation
+
         /// <summary>
         /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Lesevorgänge unterstützt.
         /// </summary>
-        public override bool CanRead => m_Stream.CanRead;
+        public override bool CanRead => stream.CanRead;
 
         /// <summary>
         /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Suchvorgänge unterstützt.
         /// </summary>
-        public override bool CanSeek => m_Stream.CanSeek;
+        public override bool CanSeek => stream.CanSeek;
 
         /// <summary>
         /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Schreibvorgänge unterstützt.
         /// </summary>
-        public override bool CanWrite => m_Stream.CanWrite;
+        public override bool CanWrite => stream.CanWrite;
 
         /// <summary>Ruft beim Überschreiben in einer abgeleiteten Klasse die Länge des Streams in Bytes ab.</summary>
-        public override long Length => m_Length;
+        public override long Length => streamLength;
 
         /// <summary>Ruft beim Überschreiben in einer abgeleiteten Klasse die Position im aktuellen Stream ab oder legt diese fest.</summary>
-        public override long Position { get => m_Position; set => Seek(value, SeekOrigin.Begin); }
+        public override long Position { get => streamPosition; set => Seek(value, SeekOrigin.Begin); }
 
         /// <summary>
         /// Löscht beim Überschreiben in einer abgeleiteten Klasse alle Puffer für diesen Stream und veranlasst die Ausgabe aller gepufferten Daten an das zugrunde liegende Gerät.
         /// </summary>
-        public override void Flush() { Resistant(() => { m_Stream.Flush(); }); }
+        public override void Flush()
+        {
+            Resistant(() => { stream.Flush(); });
+        }
 
         /// <summary>
         /// Liest beim Überschreiben in einer abgeleiteten Klasse eine Folge von Bytes aus dem aktuellen Stream und erhöht die Position im Stream um die Anzahl der gelesenen Bytes.
@@ -202,18 +230,24 @@ namespace Cave.IO
         /// </returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return Resistant(() => { return m_Stream.Read(buffer, offset, count); });
+            return Resistant(() => { return stream.Read(buffer, offset, count); });
         }
 
         /// <summary>Legt beim Überschreiben in einer abgeleiteten Klasse die Position im aktuellen Stream fest.</summary>
         /// <param name="offset">Ein Byteoffset relativ zum <paramref name="origin" />-Parameter.</param>
         /// <param name="origin">Ein Wert vom Typ <see cref="T:System.IO.SeekOrigin" />, der den Bezugspunkt angibt, von dem aus die neue Position ermittelt wird.</param>
         /// <returns>Die neue Position innerhalb des aktuellen Streams.</returns>
-        public override long Seek(long offset, SeekOrigin origin) { return Resistant(() => { return m_Stream.Seek(offset, origin); }); }
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            return Resistant(() => { return stream.Seek(offset, origin); });
+        }
 
         /// <summary>Legt beim Überschreiben in einer abgeleiteten Klasse die Länge des aktuellen Streams fest.</summary>
         /// <param name="value">Die gewünschte Länge des aktuellen Streams in Bytes.</param>
-        public override void SetLength(long value) { Resistant(() => { m_Stream.SetLength(value); }); }
+        public override void SetLength(long value)
+        {
+            Resistant(() => { stream.SetLength(value); });
+        }
 
         /// <summary>
         /// Schreibt beim Überschreiben in einer abgeleiteten Klasse eine Folge von Bytes in den aktuellen Stream und erhöht die aktuelle Position im Stream um die Anzahl der geschriebenen Bytes.
@@ -221,7 +255,10 @@ namespace Cave.IO
         /// <param name="buffer">Ein Bytearray.Diese Methode kopiert <paramref name="count" /> Bytes aus dem <paramref name="buffer" /> in den aktuellen Stream.</param>
         /// <param name="offset">Der nullbasierte Byteoffset im <paramref name="buffer" />, ab dem Bytes in den aktuellen Stream kopiert werden.</param>
         /// <param name="count">Die Anzahl an Bytes, die in den aktuellen Stream geschrieben werden sollen.</param>
-        public override void Write(byte[] buffer, int offset, int count) { Resistant(() => { m_Stream.Write(buffer, offset, count); }); }
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            Resistant(() => { stream.Write(buffer, offset, count); });
+        }
         #endregion
     }
 }

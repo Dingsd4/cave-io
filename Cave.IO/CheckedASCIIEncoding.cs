@@ -28,7 +28,7 @@ namespace Cave.IO
 #endif
 
         /// <summary>
-        /// This is a single byte character encoding
+        /// This is a single byte character encoding.
         /// </summary>
         public override bool IsSingleByte => true;
 

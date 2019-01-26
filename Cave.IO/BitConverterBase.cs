@@ -4,14 +4,14 @@ using System.Collections.Generic;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides a base class for bit converters
+    /// Provides a base class for bit converters.
     /// </summary>
     /// <seealso cref="IBitConverter" />
     public abstract class BitConverterBase : IBitConverter
     {
         #region public GetBytes() members
 
-        /// <summary>Obtains the bytes of a 7 bit encoded integer</summary>
+        /// <summary>Obtains the bytes of a 7 bit encoded integer.</summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
         public byte[] Get7BitEncodedBytes(ulong value)
@@ -29,13 +29,14 @@ namespace Cave.IO
 
                 result[index++] = b;
                 b = (byte)(value % 128);
-            } while (value != 0);
+            }
+            while (value != 0);
             Array.Resize(ref result, index);
             return result;
         }
 
         /// <summary>
-        /// Obtains the bytes of a 7 bit encoded integer
+        /// Obtains the bytes of a 7 bit encoded integer.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -45,7 +46,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -62,7 +63,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -72,7 +73,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -82,7 +83,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -92,7 +93,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -102,7 +103,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -112,7 +113,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -122,7 +123,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -132,7 +133,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -142,7 +143,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -152,7 +153,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -170,8 +171,9 @@ namespace Cave.IO
         #endregion
 
         #region public ToXXX() members
+
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -187,7 +189,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -203,7 +205,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -219,7 +221,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -230,7 +232,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -241,7 +243,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -252,7 +254,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -267,13 +269,13 @@ namespace Cave.IO
             int[] array = new int[4];
             for (int i = 0; i < 4; i++)
             {
-                array[i] = ToInt32(data, index + i * 4);
+                array[i] = ToInt32(data, index + (i * 4));
             }
             return new decimal(array);
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -284,7 +286,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -295,7 +297,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -306,7 +308,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -318,29 +320,30 @@ namespace Cave.IO
         #endregion
 
         #region abstract definitions
+
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public abstract byte[] GetBytes(ushort value);
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public abstract byte[] GetBytes(uint value);
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public abstract byte[] GetBytes(ulong value);
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -348,7 +351,7 @@ namespace Cave.IO
         public abstract ushort ToUInt16(byte[] data, int index);
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -356,7 +359,7 @@ namespace Cave.IO
         public abstract uint ToUInt32(byte[] data, int index);
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>

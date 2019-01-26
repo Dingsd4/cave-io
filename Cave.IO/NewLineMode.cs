@@ -1,7 +1,7 @@
 namespace Cave.IO
 {
     /// <summary>
-    /// Available NewLine modes for DataReader and DataWriter
+    /// Available NewLine modes for DataReader and DataWriter.
     /// </summary>
     public enum NewLineMode
     {

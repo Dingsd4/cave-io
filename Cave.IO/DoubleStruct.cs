@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides an easy way to access the bits of a double value
+    /// Provides an easy way to access the bits of a double value.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     public struct DoubleStruct : IEquatable<DoubleStruct>
@@ -28,75 +28,75 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a <see cref="ulong"/> to a <see cref="double"/>
+        /// Converts a <see cref="ulong"/> to a <see cref="double"/>.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public static double ToDouble(ulong value)
         {
             DoubleStruct d = new DoubleStruct
             {
-                UInt64 = value
+                UInt64 = value,
             };
             return d.Double;
         }
 
         /// <summary>
-        /// Converts a <see cref="long"/> to a <see cref="double"/>
+        /// Converts a <see cref="long"/> to a <see cref="double"/>.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public static double ToDouble(long value)
         {
             DoubleStruct d = new DoubleStruct
             {
-                Int64 = value
+                Int64 = value,
             };
             return d.Double;
         }
 
         /// <summary>
-        /// Converts a <see cref="double"/> to a <see cref="long"/>
+        /// Converts a <see cref="double"/> to a <see cref="long"/>.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public static long ToInt64(double value)
         {
             DoubleStruct d = new DoubleStruct
             {
-                Double = value
+                Double = value,
             };
             return d.Int64;
         }
 
         /// <summary>
-        /// Converts a <see cref="double"/> to a <see cref="ulong"/>
+        /// Converts a <see cref="double"/> to a <see cref="ulong"/>.
         /// </summary>
-        /// <param name="value">The value to convert</param>
+        /// <param name="value">The value to convert.</param>
         /// <returns></returns>
         public static ulong ToUInt64(double value)
         {
             DoubleStruct d = new DoubleStruct
             {
-                Double = value
+                Double = value,
             };
             return d.UInt64;
         }
 
         /// <summary>
-        /// The value as UInt64
+        /// The value as UInt64.
         /// </summary>
         [FieldOffset(0)]
         public ulong UInt64;
 
         /// <summary>
-        /// The value as Int64
+        /// The value as Int64.
         /// </summary>
         [FieldOffset(0)]
         public long Int64;
 
         /// <summary>
-        /// The value as Double
+        /// The value as Double.
         /// </summary>
         [FieldOffset(0)]
         public double Double;

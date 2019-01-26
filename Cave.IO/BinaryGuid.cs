@@ -106,7 +106,7 @@ namespace Cave.IO
 
             return new BinaryGuid()
             {
-                data = guid.ToByteArray()
+                data = guid.ToByteArray(),
             };
         }
 
@@ -128,13 +128,13 @@ namespace Cave.IO
                 return false;
             }
 #else
-			if (Guid.TryParse(text, out Guid g))
-			{
-				guid = g;
-				return true;
-			}
-			guid = null;
-			return false;
+            if (Guid.TryParse(text, out Guid g))
+            {
+                guid = g;
+                return true;
+            }
+            guid = null;
+            return false;
 #endif
         }
 
@@ -149,7 +149,7 @@ namespace Cave.IO
 
         /// <summary>Returns a hash code for this instance.</summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
         {
@@ -185,7 +185,7 @@ namespace Cave.IO
         /// </returns>
         public int CompareTo(object obj)
         {
-            if (null == obj)
+            if (obj == null)
             {
                 return 1;
             }
@@ -193,7 +193,7 @@ namespace Cave.IO
             return ToString().CompareTo(obj.ToString());
         }
 
-        /// <summary>Converts to an byte array</summary>
+        /// <summary>Converts to an byte array.</summary>
         /// <returns></returns>
         public byte[] ToArray()
         {

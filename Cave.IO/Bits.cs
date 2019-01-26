@@ -4,27 +4,27 @@ using System.Collections.Generic;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides binary conversion routines
+    /// Provides binary conversion routines.
     /// </summary>
     public class Bits
     {
         /// <summary>
-        /// Implicitly converts <see cref="Bits"/> data to an array
+        /// Implicitly converts <see cref="Bits"/> data to an array.
         /// </summary>
-        /// <param name="value">The binary data</param>
+        /// <param name="value">The binary data.</param>
         /// <returns></returns>
-        public static implicit operator byte[] (Bits value)
+        public static implicit operator byte[](Bits value)
         {
             if (value == null)
             {
                 return new byte[0];
             }
 
-            return value.m_Data;
+            return value.data;
         }
 
         /// <summary>
-        /// Implicitly converts an array to <see cref="Bits"/> data
+        /// Implicitly converts an array to <see cref="Bits"/> data.
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
@@ -38,37 +38,39 @@ namespace Cave.IO
             return new Bits(data);
         }
 
-        /// <summary>Reflects 64 bits</summary>
-        /// <param name="x">The bits</param>
-        /// <returns>Returns a center reflection</returns>
+        /// <summary>Reflects 64 bits.</summary>
+        /// <param name="x">The bits.</param>
+        /// <returns>Returns a center reflection.</returns>
         public static ulong Reflect64(ulong x)
         {
-            //move bits
+            // move bits
             x = ((x & 0x5555555555555555) << 1) | ((x >> 1) & 0x5555555555555555);
             x = ((x & 0x3333333333333333) << 2) | ((x >> 2) & 0x3333333333333333);
             x = ((x & 0x0F0F0F0F0F0F0F0F) << 4) | ((x >> 4) & 0x0F0F0F0F0F0F0F0F);
-            //move bytes
+
+            // move bytes
             x = (x << 56) | ((x & 0xFF00) << 40) | ((x & 0xFF0000) << 24) | ((x & 0xFF000000) << 8) | ((x >> 8) & 0xFF000000) | ((x >> 24) & 0xFF0000) | ((x >> 40) & 0xFF00) | (x >> 56);
             return x;
         }
 
-        /// <summary>Reflects 32 bits</summary>
-        /// <param name="x">The bits</param>
-        /// <returns>Returns a center reflection</returns>
+        /// <summary>Reflects 32 bits.</summary>
+        /// <param name="x">The bits.</param>
+        /// <returns>Returns a center reflection.</returns>
         public static uint Reflect32(uint x)
         {
-            //move bits
+            // move bits
             x = ((x & 0x55555555) << 1) | ((x >> 1) & 0x55555555);
             x = ((x & 0x33333333) << 2) | ((x >> 2) & 0x33333333);
             x = ((x & 0x0F0F0F0F) << 4) | ((x >> 4) & 0x0F0F0F0F);
-            //move bytes
+
+            // move bytes
             x = (x << 24) | ((x & 0xFF00) << 8) | ((x >> 8) & 0xFF00) | (x >> 24);
             return x;
         }
 
-        /// <summary>Reflects 8 bits</summary>
-        /// <param name="b">The bits</param>
-        /// <returns>Returns a center reflection</returns>
+        /// <summary>Reflects 8 bits.</summary>
+        /// <param name="b">The bits.</param>
+        /// <returns>Returns a center reflection.</returns>
         public static byte Reflect8(byte b)
         {
             uint r = b;
@@ -79,7 +81,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -89,7 +91,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -99,7 +101,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -109,7 +111,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -119,7 +121,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -129,7 +131,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" int (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" int (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -146,13 +148,13 @@ namespace Cave.IO
                     throw new ArgumentException("binary");
                 }
 
-                result |= (current << counter++);
+                result |= current << counter++;
             }
             return result;
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -162,7 +164,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -172,7 +174,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -182,7 +184,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -192,7 +194,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -202,7 +204,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309)
+        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -212,7 +214,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a binary string ("100110101") to a "normal" int (0x135 = 309)
+        /// Converts a binary string ("100110101") to a "normal" int (0x135 = 309).
         /// </summary>
         /// <param name="binary"></param>
         /// <returns></returns>
@@ -246,7 +248,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a value int (309 = 0x135) to a binary string ("100110101")
+        /// Converts a value int (309 = 0x135) to a binary string ("100110101").
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -271,7 +273,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Converts a value int (309 = 0x135) to a binary long (100110101)
+        /// Converts a value int (309 = 0x135) to a binary long (100110101).
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -281,27 +283,27 @@ namespace Cave.IO
             int counter = 0;
             while (value != 0)
             {
-                long bit = ((value & 1) << counter++);
+                long bit = (value & 1) << counter++;
                 result = result | bit;
                 value >>= 1;
             }
             return result;
         }
 
-        byte[] m_Data;
+        byte[] data;
 
         /// <summary>
-        /// Creates a new instance with the specified data
+        /// Creates a new instance with the specified data.
         /// </summary>
         /// <param name="data"></param>
         public Bits(byte[] data)
         {
-            m_Data = data;
+            this.data = data;
         }
 
         /// <summary>
-        /// Obtains a copy of all data
+        /// Obtains a copy of all data.
         /// </summary>
-        public byte[] Data => (byte[])m_Data.Clone();
+        public byte[] Data => (byte[])data.Clone();
     }
 }

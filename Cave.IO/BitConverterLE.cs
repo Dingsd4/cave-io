@@ -3,7 +3,7 @@ using System;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides an alternate <see cref="BitConverter" /> class providing additional functionality
+    /// Provides an alternate <see cref="BitConverter" /> class providing additional functionality.
     /// </summary>
     public class BitConverterLE : BitConverterBase
     {
@@ -11,12 +11,14 @@ namespace Cave.IO
         /// <value>The default instance.</value>
         public static BitConverterLE Instance { get; } = new BitConverterLE();
 
-        private BitConverterLE() { }
+        private BitConverterLE()
+        {
+        }
 
         #region public GetBytes() members
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -26,7 +28,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -42,7 +44,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -62,7 +64,7 @@ namespace Cave.IO
         #region public ToXXX() members
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -83,7 +85,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -106,7 +108,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>

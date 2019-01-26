@@ -3,7 +3,7 @@ using System;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides an alternate <see cref="BitConverter" /> class providing additional functionality
+    /// Provides an alternate <see cref="BitConverter" /> class providing additional functionality.
     /// </summary>
     public class BitConverterBE : BitConverterBase
     {
@@ -11,12 +11,14 @@ namespace Cave.IO
         /// <value>The default instance.</value>
         public static BitConverterBE Instance { get; } = new BitConverterBE();
 
-        private BitConverterBE() { }
+        private BitConverterBE()
+        {
+        }
 
         #region public GetBytes() members
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -26,7 +28,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -42,7 +44,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype
+        /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -61,11 +63,11 @@ namespace Cave.IO
 
         #region public ToXXX() members
 
-        /// <summary>Returns a value converted from the specified data at a specified index</summary>
+        /// <summary>Returns a value converted from the specified data at a specified index.</summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">data</exception>
+        /// <exception cref="ArgumentNullException">data.</exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public override ushort ToUInt16(byte[] data, int index)
         {
@@ -73,7 +75,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>
@@ -94,7 +96,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Returns a value converted from the specified data at a specified index
+        /// Returns a value converted from the specified data at a specified index.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="index"></param>

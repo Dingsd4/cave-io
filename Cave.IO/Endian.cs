@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides Endian Tools
+    /// Provides Endian Tools.
     /// </summary>
     public static class Endian
     {
@@ -32,33 +32,33 @@ namespace Cave.IO
             return result;
         }
 
-        /// <summary>Swaps the byte order of a value</summary>
-        /// <param name="value">Value to swap the byte order of</param>
-        /// <returns>Byte order-swapped value</returns>
+        /// <summary>Swaps the byte order of a value.</summary>
+        /// <param name="value">Value to swap the byte order of.</param>
+        /// <returns>Byte order-swapped value.</returns>
         public static ushort Swap(ushort value)
         {
             return (ushort)((value >> 8) | ((value & 0xFF) << 8));
         }
 
-        /// <summary>Swaps the byte order of a value</summary>
-        /// <param name="value">Value to swap the byte order of</param>
-        /// <returns>Byte order-swapped value</returns>
+        /// <summary>Swaps the byte order of a value.</summary>
+        /// <param name="value">Value to swap the byte order of.</param>
+        /// <returns>Byte order-swapped value.</returns>
         public static uint Swap(uint value)
         {
             return (value >> 24) | ((value & 0xFF00) << 8) | ((value >> 8) & 0xFF00) | (value << 24);
         }
 
-        /// <summary>Swaps the byte order of a value</summary>
-        /// <param name="value">Value to swap the byte order of</param>
-        /// <returns>Byte order-swapped value</returns>
+        /// <summary>Swaps the byte order of a value.</summary>
+        /// <param name="value">Value to swap the byte order of.</param>
+        /// <returns>Byte order-swapped value.</returns>
         public static ulong Swap(ulong value)
         {
-            return ((value >> 56) | (0xFF00 & (value >> 40)) | (0xFF0000 & (value >> 24)) | (0xFF000000 & (value >> 8)) |
-                ((value & 0xFF000000) << 8) | ((value & 0xFF0000) << 24) | ((value & 0xFF00) << 40) | (value << 56));
+            return (value >> 56) | (0xFF00 & (value >> 40)) | (0xFF0000 & (value >> 24)) | (0xFF000000 & (value >> 8)) |
+                ((value & 0xFF000000) << 8) | ((value & 0xFF0000) << 24) | ((value & 0xFF00) << 40) | (value << 56);
         }
 
         /// <summary>
-        /// Obtains the machine endian type
+        /// Obtains the machine endian type.
         /// </summary>
         /// <returns></returns>
         [ExcludeFromCodeCoverage]
@@ -70,7 +70,13 @@ namespace Cave.IO
                 const ulong BigEndianValue = 0x123456789ABCDEF0;
                 const ulong LittleEndianValue = 0xF0DEBC9A78563412;
                 ulong value;
-                unsafe { fixed (byte* ptr = &bytes[0]) { value = *((ulong*)ptr); } }
+                unsafe
+                {
+                    fixed (byte* ptr = &bytes[0])
+                    {
+                        value = *(ulong*)ptr;
+                    }
+                }
                 if (value == LittleEndianValue)
                 {
                     return EndianType.LittleEndian;

@@ -7,149 +7,195 @@ using System.Text;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides tools for manual struct mashalling
+    /// Provides tools for manual struct mashalling.
     /// </summary>
-    public static class MarshalStruct //MakeInternal:KEEP
+    public static class MarshalStruct // MakeInternal:KEEP
     {
         /// <summary>
-        /// Reads a struct from a stream (see <see cref="DataReader"/> for a comfortable reader class supporting this, too)
+        /// Gets the size of the specified structure.
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="stream">Stream to read from</param>
-        /// <returns>Returns a new struct instance</returns>
-        public static T Read<T>(Stream stream) where T : struct
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static int SizeOf<T>()
+            where T : struct
+        {
+#if NET20 || NET35 || NET40 || NET45
+            return Marshal.SizeOf(typeof(T));
+#else
+            return Marshal.SizeOf<T>();
+#endif
+        }
+
+        /// <summary>
+        /// Marshalls the specified buffer to a new structure instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer">Buffer to copy.</param>
+        /// <param name="result"></param>
+        public static void Copy<T>(byte[] buffer, out T result)
+            where T : struct
+            => Copy<T>(buffer, 0, out result);
+
+        /// <summary>
+        /// Marshalls the specified buffer to a new structure instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer">Buffer to copy.</param>
+        /// <param name="offset">Offset to start reading the byte buffer at.</param>
+        /// <param name="result"></param>
+        public static void Copy<T>(byte[] buffer, int offset, out T result)
+            where T : struct
+        {
+            var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            try
+            {
+                IntPtr ptr = handle.AddrOfPinnedObject();
+                if (offset != 0)
+                {
+                    ptr = new IntPtr(ptr.ToInt64() + offset);
+                }
+#if NET20 || NET35 || NET40 || NET45
+                result = (T)Marshal.PtrToStructure(ptr, typeof(T));
+#else
+                result = Marshal.PtrToStructure<T>(ptr);
+#endif
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        /// <summary>
+        /// Marshalls the specified structure to a new byte[] instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="data"></param>
+        public static void Copy<T>(T item, out byte[] data)
+            where T : struct
+        {
+            int size = SizeOf<T>();
+            data = new byte[size];
+            var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            try
+            {
+                Marshal.StructureToPtr(item, handle.AddrOfPinnedObject(), true);
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        /// <summary>
+        /// Reads a struct from a stream (see <see cref="DataReader"/> for a comfortable reader class supporting this, too).
+        /// </summary>
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="stream">Stream to read from.</param>
+        /// <returns>Returns a new struct instance.</returns>
+        public static T Read<T>(Stream stream)
+            where T : struct
         {
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
 
-            int size = Marshal.SizeOf(typeof(T));
+            int size = SizeOf<T>();
             byte[] buffer = new byte[size];
             if (stream.Read(buffer, 0, size) < size)
             {
                 throw new EndOfStreamException();
             }
-
-            GCHandle l_Handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            T result = (T)Marshal.PtrToStructure(l_Handle.AddrOfPinnedObject(), typeof(T));
-            l_Handle.Free();
+            Copy(buffer, 0, out T result);
             return result;
         }
 
         /// <summary>
-        /// Writes a struct to a stream (see <see cref="DataWriter"/> for a comfortable reader class supporting this, too)
+        /// Writes a struct to a stream (see <see cref="DataWriter"/> for a comfortable reader class supporting this, too).
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="stream">Stream to write to</param>
-        /// <param name="item">the struct to write</param>
-        public static void Write<T>(Stream stream, T item) where T : struct
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="stream">Stream to write to.</param>
+        /// <param name="item">the struct to write.</param>
+        public static void Write<T>(Stream stream, T item)
+            where T : struct
         {
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
 
-            int size = Marshal.SizeOf(item);
-            byte[] data = new byte[size];
-            GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            Marshal.StructureToPtr(item, l_Handle.AddrOfPinnedObject(), false);
-            l_Handle.Free();
-            stream.Write(data, 0, size);
+            Copy(item, out byte[] data);
+            stream.Write(data, 0, data.Length);
         }
 
         /// <summary>
-        /// Reads a struct from a byte buffer
+        /// Reads a struct from a byte buffer.
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="data">byte buffer</param>
-        /// <param name="offset">Offset at the byte buffer to start reading</param>
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="data">byte buffer.</param>
+        /// <param name="offset">Offset at the byte buffer to start reading.</param>
         /// <returns></returns>
-        public static T Read<T>(byte[] data, int offset) where T : struct
+        public static T Read<T>(byte[] data, int offset = 0)
+            where T : struct
         {
             if (data == null)
             {
                 throw new ArgumentNullException("data");
             }
 
-            int size = Marshal.SizeOf(typeof(T));
-            if (offset + size > data.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset+Size!");
-            }
-
-            GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            IntPtr addr = new IntPtr(l_Handle.AddrOfPinnedObject().ToInt64() + offset);
-            T result = (T)Marshal.PtrToStructure(addr, typeof(T));
-            l_Handle.Free();
+            Copy(data, out T result);
             return result;
         }
 
         /// <summary>
-        /// Writes a struct to a byte buffer
+        /// Writes a struct to a byte buffer.
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="item">the struct to write</param>
-        /// <param name="data">byte buffer</param>
-        /// <param name="offset">Offset at the byte buffer to start writing</param>
-        public static void Write<T>(T item, byte[] data, int offset) where T : struct
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="item">the struct to write.</param>
+        /// <param name="buffer">byte buffer.</param>
+        /// <param name="offset">Offset at the byte buffer to start writing.</param>
+        public static void Write<T>(T item, byte[] buffer, int offset)
+            where T : struct
         {
-            if (data == null)
+            if (buffer == null)
             {
                 throw new ArgumentNullException("data");
             }
 
-            int size = Marshal.SizeOf(item);
-            if (offset + size > data.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset), "Buffer smaller than Offset + Size!");
-            }
-
-            GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            IntPtr addr = new IntPtr(l_Handle.AddrOfPinnedObject().ToInt64() + offset);
-            Marshal.StructureToPtr(item, addr, false);
-            l_Handle.Free();
+            Copy(item, out byte[] data);
+            Array.Copy(data, 0, buffer, offset, data.Length);
         }
 
         /// <summary>
-        /// Obtains a new byte buffer containing the data of the struct
+        /// Obtains a new byte buffer containing the data of the struct.
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="item">the struct to read</param>
-        /// <returns>returns a new byte buffer</returns>
-        public static byte[] GetBytes<T>(T item) where T : struct
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="item">the struct to read.</param>
+        /// <returns>returns a new byte buffer.</returns>
+        public static byte[] GetBytes<T>(T item)
+            where T : struct
         {
-            int size = Marshal.SizeOf(item);
-            byte[] data = new byte[size];
-            GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            Marshal.StructureToPtr(item, l_Handle.AddrOfPinnedObject(), false);
-            l_Handle.Free();
+            Copy(item, out byte[] data);
             return data;
         }
 
         /// <summary>
-        /// Obtains a new struct instance containing the data of the buffer
+        /// Obtains a new struct instance containing the data of the buffer.
         /// </summary>
-        /// <typeparam name="T">struct type</typeparam>
-        /// <param name="data">byte buffer</param>
-        /// <returns>returns a new struct</returns>
-        public static T GetStruct<T>(byte[] data) where T : struct
+        /// <typeparam name="T">struct type.</typeparam>
+        /// <param name="data">byte buffer.</param>
+        /// <returns>returns a new struct.</returns>
+        public static T GetStruct<T>(byte[] data)
+            where T : struct
         {
             if (data == null)
             {
                 throw new ArgumentNullException("data");
             }
 
-            Type type = typeof(T);
-            int size = Marshal.SizeOf(type);
-            if (size != data.Length)
-            {
-                throw new InvalidDataException("Buffer length does not match struct size!");
-            }
-
-            GCHandle l_Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            T result = (T)Marshal.PtrToStructure(l_Handle.AddrOfPinnedObject(), type);
-            l_Handle.Free();
+            Copy(data, out T result);
             return result;
         }
 
@@ -163,7 +209,7 @@ namespace Cave.IO
                 return null;
             }
 
-            List<byte> data = new List<byte>();
+            var data = new List<byte>();
             int i = 0;
             while (true)
             {
@@ -189,8 +235,8 @@ namespace Cave.IO
                 return null;
             }
 
-            List<string> strings = new List<string>();
-            List<byte> current = new List<byte>();
+            var strings = new List<string>();
+            var current = new List<byte>();
             for (int i = 0; ; i++)
             {
                 byte b = Marshal.ReadByte(ptr, i);

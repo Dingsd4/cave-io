@@ -4,49 +4,48 @@ using System.IO;
 namespace Cave.IO
 {
     /// <summary>
-    /// Bit Stream Reader Class for reversed bitstreams of the form: byte0[bit7,bit6,bit5,bit4,bit3,bit2,bit1,bit0] byte1[bit15,bit14,bit13,bit12,...]
+    /// Bit Stream Reader Class for reversed bitstreams of the form: byte0[bit7,bit6,bit5,bit4,bit3,bit2,bit1,bit0] byte1[bit15,bit14,bit13,bit12,...].
     /// </summary>
     public class BitStreamReaderReverse
     {
-        int m_BufferedByte = 0;
-        int m_Position = 8;
-        Stream m_Stream;
+        int bufferedByte = 0;
+        int position = 8;
 
         /// <summary>
-        /// Obtains the BaseStream
+        /// Gets the BaseStream.
         /// </summary>
-        public Stream BaseStream => m_Stream;
+        public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// creates a new csBitStreamReader
+        /// creates a new csBitStreamReader.
         /// </summary>
         /// <param name="stream"></param>
         public BitStreamReaderReverse(Stream stream)
         {
-            m_Stream = stream;
+            this.BaseStream = stream;
         }
 
         /// <summary>
-        /// reads a bit from the buffer
+        /// reads a bit from the buffer.
         /// </summary>
         /// <returns></returns>
         public int ReadBit()
         {
-            if (m_Position > 7)
+            if (position > 7)
             {
-                m_BufferedByte = m_Stream.ReadByte();
-                if (m_BufferedByte == -1)
+                bufferedByte = BaseStream.ReadByte();
+                if (bufferedByte == -1)
                 {
                     throw new EndOfStreamException();
                 }
 
-                m_Position = 0;
+                position = 0;
             }
-            return (m_BufferedByte >> m_Position++) & 1;
+            return (bufferedByte >> position++) & 1;
         }
 
         /// <summary>
-        /// reads some bits
+        /// reads some bits.
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
@@ -67,7 +66,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// reads some bits
+        /// reads some bits.
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
@@ -88,32 +87,32 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves / sets the current bitposition
+        /// retrieves / sets the current bitposition.
         /// </summary>
         public long Position
         {
             get
             {
-                long pos = m_Stream.Position * 8;
-                if (m_Position < 8)
+                long pos = BaseStream.Position * 8;
+                if (position < 8)
                 {
-                    pos += m_Position - 8;
+                    pos += position - 8;
                 }
                 return pos;
             }
             set
             {
-                m_Stream.Position = value / 8;
+                BaseStream.Position = value / 8;
                 long diff = value % 8;
-                m_Position = 8;
+                position = 8;
                 if (diff == 0)
                 {
                     return;
                 }
 
-                m_Position = (int)diff;
-                m_BufferedByte = m_Stream.ReadByte();
-                if (m_BufferedByte == -1)
+                position = (int)diff;
+                bufferedByte = BaseStream.ReadByte();
+                if (bufferedByte == -1)
                 {
                     throw new EndOfStreamException();
                 }
@@ -121,9 +120,9 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves the length in bits
+        /// retrieves the length in bits.
         /// </summary>
-        public long Length => m_Stream.Length * 8;
+        public long Length => BaseStream.Length * 8;
 
         /// <summary>
         /// Checks for end of stream during bit reading. This can always be called, even if the stream cannot seek.
@@ -132,31 +131,32 @@ namespace Cave.IO
         {
             get
             {
-                if (m_Position > 7)
+                if (position > 7)
                 {
-                    m_BufferedByte = m_Stream.ReadByte();
-                    if (m_BufferedByte == -1)
+                    bufferedByte = BaseStream.ReadByte();
+                    if (bufferedByte == -1)
                     {
                         return true;
                     }
 
-                    m_Position = 0;
+                    position = 0;
                 }
                 return false;
             }
         }
 
         #region overrides
+
         /// <summary>
-        /// Obtains the name of the class and the current state
+        /// Obtains the name of the class and the current state.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             string result = base.ToString();
-            if (m_Stream != null)
+            if (BaseStream != null)
             {
-                if (m_Stream.CanSeek)
+                if (BaseStream.CanSeek)
                 {
                     result += " [" + Position + "/" + Length + "]";
                 }
@@ -173,7 +173,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a hash code for this object
+        /// Obtains a hash code for this object.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()

@@ -4,24 +4,26 @@ using System.IO;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides a sub stream implementation
+    /// Provides a sub stream implementation.
     /// </summary>
     public class SubStream : Stream
     {
-        Stream m_Stream;
-        long m_Position = 0;
+        long position = 0;
 
         /// <summary>
-        /// Creates a new SubStream from the specified stream at its current read/write position
+        /// Creates a new SubStream from the specified stream at its current read/write position.
         /// </summary>
-        /// <param name="stream">The stream to create the substream from</param>
-        public SubStream(Stream stream) : this(stream, 0) { }
+        /// <param name="stream">The stream to create the substream from.</param>
+        public SubStream(Stream stream)
+            : this(stream, 0)
+        {
+        }
 
         /// <summary>
-        /// Creates a new SubStream from the specified stream at the specified read/write position
+        /// Creates a new SubStream from the specified stream at the specified read/write position.
         /// </summary>
-        /// <param name="stream">The stream to create the substream from</param>
-        /// <param name="seek">The start position of the substream relative to the current stream position</param>
+        /// <param name="stream">The stream to create the substream from.</param>
+        /// <param name="seek">The start position of the substream relative to the current stream position.</param>
         public SubStream(Stream stream, int seek)
         {
             if (stream == null)
@@ -47,48 +49,53 @@ namespace Cave.IO
                     }
                 }
             }
-            m_Stream = stream;
+            this.BaseStream = stream;
         }
 
         /// <summary>
-        /// Obtains whether the stream can be read or not
+        /// Gets the BaseStream.
         /// </summary>
-        public override bool CanRead => m_Stream.CanRead;
+        public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// Obtains whether the stream can seek or not
+        /// Obtains whether the stream can be read or not.
         /// </summary>
-        public override bool CanSeek => m_Stream.CanSeek;
+        public override bool CanRead => BaseStream.CanRead;
 
         /// <summary>
-        /// Obtains whether the stream can be written or not
+        /// Obtains whether the stream can seek or not.
         /// </summary>
-        public override bool CanWrite => m_Stream.CanWrite;
+        public override bool CanSeek => BaseStream.CanSeek;
 
         /// <summary>
-        /// flushes the stream
+        /// Obtains whether the stream can be written or not.
+        /// </summary>
+        public override bool CanWrite => BaseStream.CanWrite;
+
+        /// <summary>
+        /// flushes the stream.
         /// </summary>
         public override void Flush()
         {
-            m_Stream.Flush();
+            BaseStream.Flush();
         }
 
         /// <summary>
-        /// Obtains the length of the stream
+        /// Obtains the length of the stream.
         /// </summary>
-        public override long Length => m_Stream.Length - m_Stream.Position + m_Position;
+        public override long Length => BaseStream.Length - BaseStream.Position + position;
 
         /// <summary>
-        /// Gets/sets the current read/write position
+        /// Gets/sets the current read/write position.
         /// </summary>
         public override long Position
         {
-            get => m_Position;
+            get => position;
             set => Seek(value, SeekOrigin.Begin);
         }
 
         /// <summary>
-        /// Reads a byte buffer from the stream at the current position
+        /// Reads a byte buffer from the stream at the current position.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
@@ -96,13 +103,13 @@ namespace Cave.IO
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int l_Read = m_Stream.Read(buffer, offset, count);
-            m_Position += l_Read;
+            int l_Read = BaseStream.Read(buffer, offset, count);
+            position += l_Read;
             return l_Read;
         }
 
         /// <summary>
-        /// seeks the stream
+        /// seeks the stream.
         /// </summary>
         /// <param name="offset"></param>
         /// <param name="origin"></param>
@@ -117,19 +124,19 @@ namespace Cave.IO
                         throw new ArgumentOutOfRangeException(nameof(offset));
                     }
 
-                    long result = Seek(offset - m_Position, origin);
-                    m_Position = offset;
+                    long result = Seek(offset - position, origin);
+                    position = offset;
                     return result;
 
                 case SeekOrigin.Current:
-                    return Seek(m_Position + offset, SeekOrigin.Begin);
+                    return Seek(position + offset, SeekOrigin.Begin);
 
                 default: throw new NotSupportedException(string.Format("SeekOrigin {0} not supported!", origin));
             }
         }
 
         /// <summary>
-        /// not supported
+        /// not supported.
         /// </summary>
         /// <param name="value"></param>
         public override void SetLength(long value)
@@ -138,15 +145,15 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Writes a byte buffer to the stream at the current position
+        /// Writes a byte buffer to the stream at the current position.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            m_Stream.Write(buffer, offset, count);
-            m_Position += count;
+            BaseStream.Write(buffer, offset, count);
+            position += count;
         }
     }
 }

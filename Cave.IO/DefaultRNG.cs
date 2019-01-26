@@ -13,24 +13,24 @@ namespace Cave.IO
         static RandomNumberGenerator generator = RandomNumberGenerator.Create();
 
         /// <summary>
-        /// Returns the currently used generator
+        /// Returns the currently used generator.
         /// </summary>
-        public static RandomNumberGenerator Generator { get=> generator; set => generator = value ?? throw new ArgumentNullException(nameof(value)); }
+        public static RandomNumberGenerator Generator { get => generator; set => generator = value ?? throw new ArgumentNullException(nameof(value)); }
 
         /// <summary>
-        ///
+        /// Fills the specified array with random data.
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="array">The byte array to fill.</param>
         public static void Fill(byte[] array)
         {
             Generator.GetBytes(array);
         }
 
         /// <summary>
-        /// Obtains a byte array containing secure random bytes with the specified size
+        /// Obtains a byte array containing secure random bytes with the specified size.
         /// </summary>
-        /// <param name="size"></param>
-        /// <returns></returns>
+        /// <param name="size">The size in bytes.</param>
+        /// <returns>Returns a new randomized byte array.</returns>
         public static byte[] Get(int size)
         {
             byte[] array = new byte[size];
@@ -39,7 +39,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 8 bit signed integer
+        /// Obtains a random 8 bit signed integer.
         /// </summary>
         public static sbyte Int8
         {
@@ -50,7 +50,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 8 bit unsigned integer
+        /// Obtains a random 8 bit unsigned integer.
         /// </summary>
         public static byte UInt8
         {
@@ -61,7 +61,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 16 bit signed integer
+        /// Obtains a random 16 bit signed integer.
         /// </summary>
         public static short Int16
         {
@@ -72,7 +72,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 16 bit unsigned integer
+        /// Obtains a random 16 bit unsigned integer.
         /// </summary>
         public static ushort UInt16
         {
@@ -83,7 +83,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 32 bit signed integer
+        /// Obtains a random 32 bit signed integer.
         /// </summary>
         public static int Int32
         {
@@ -94,7 +94,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 32 bit unsigned integer
+        /// Obtains a random 32 bit unsigned integer.
         /// </summary>
         public static uint UInt32
         {
@@ -105,7 +105,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 64 bit signed integer
+        /// Obtains a random 64 bit signed integer.
         /// </summary>
         public static long Int64
         {
@@ -116,7 +116,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 64 bit unsigned integer
+        /// Obtains a random 64 bit unsigned integer.
         /// </summary>
         public static ulong UInt64
         {
@@ -145,11 +145,19 @@ namespace Cave.IO
                 for (int x = 33, n = 0; n < chars.Length; x++)
                 {
                     var c = (char)x;
-                    if (c == '"') continue;
-                    if (c == '\'') continue;
+                    if (c == '"')
+                    {
+                        continue;
+                    }
+
+                    if (c == '\'')
+                    {
+                        continue;
+                    }
+
                     chars[n++] = c;
                 }
-            };
+            }
             uint charsCount = (uint)chars.Length;
             int i = 0;
             while (i < count)

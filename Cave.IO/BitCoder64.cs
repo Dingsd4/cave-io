@@ -4,12 +4,12 @@ using System.IO;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides 7bit encoding of 64bit values (ulong, ulong)
+    /// Provides 7bit encoding of 64bit values (ulong, ulong).
     /// </summary>
     public static class BitCoder64
     {
         /// <summary>
-        /// Obtains the number of bytes needed for the specified value
+        /// Obtains the number of bytes needed for the specified value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -29,7 +29,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the number of bytes needed for the specified value
+        /// Obtains the number of bytes needed for the specified value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -42,7 +42,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the data of a 7 bit encoded value
+        /// Obtains the data of a 7 bit encoded value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -56,7 +56,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the data of a 7 bit encoded value
+        /// Obtains the data of a 7 bit encoded value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -69,10 +69,10 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Reads a 7 bit encoded value from the specified Stream
+        /// Reads a 7 bit encoded value from the specified Stream.
         /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to read from</param>
-        /// <returns>Returns the read value</returns>
+        /// <param name="stream">The <see cref="Stream"/> to read from.</param>
+        /// <returns>Returns the read value.</returns>
         public static ulong Read7BitEncodedUInt64(Stream stream)
         {
             if (stream == null)
@@ -113,10 +113,10 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Reads a 7 bit encoded value from the specified Stream
+        /// Reads a 7 bit encoded value from the specified Stream.
         /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to read from</param>
-        /// <returns>Returns the read value</returns>
+        /// <param name="stream">The <see cref="Stream"/> to read from.</param>
+        /// <returns>Returns the read value.</returns>
         public static long Read7BitEncodedInt64(Stream stream)
         {
             unchecked
@@ -126,11 +126,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Writes the specified value 7 bit encoded to the specified Stream
+        /// Writes the specified value 7 bit encoded to the specified Stream.
         /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        /// <param name="value">The value to write</param>
-        /// <returns>Returns the number of bytes written</returns>
+        /// <param name="stream">The <see cref="Stream"/> to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Returns the number of bytes written.</returns>
         public static int Write7BitEncoded(Stream stream, ulong value)
         {
             if (stream == null)
@@ -156,11 +156,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Writes the specified value 7 bit encoded to the specified Stream
+        /// Writes the specified value 7 bit encoded to the specified Stream.
         /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        /// <param name="value">The value to write</param>
-        /// <returns>Returns the number of bytes written</returns>
+        /// <param name="stream">The <see cref="Stream"/> to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Returns the number of bytes written.</returns>
         public static int Write7BitEncoded(Stream stream, long value)
         {
             unchecked
@@ -170,11 +170,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Writes the specified value 7 bit encoded to the specified Stream
+        /// Writes the specified value 7 bit encoded to the specified Stream.
         /// </summary>
-        /// <param name="writer">The <see cref="DataWriter"/> to write to</param>
-        /// <param name="value">The value to write</param>
-        /// <returns>Returns the number of bytes written</returns>
+        /// <param name="writer">The <see cref="DataWriter"/> to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Returns the number of bytes written.</returns>
         public static int Write7BitEncoded(DataWriter writer, ulong value)
         {
             if (writer == null)
@@ -200,11 +200,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Writes the specified value 7 bit encoded to the specified Stream
+        /// Writes the specified value 7 bit encoded to the specified Stream.
         /// </summary>
-        /// <param name="writer">The <see cref="DataWriter"/> to write to</param>
-        /// <param name="value">The value to write</param>
-        /// <returns>Returns the number of bytes written</returns>
+        /// <param name="writer">The <see cref="DataWriter"/> to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Returns the number of bytes written.</returns>
         public static int Write7BitEncoded(DataWriter writer, long value)
         {
             unchecked

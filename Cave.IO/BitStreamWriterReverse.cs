@@ -4,49 +4,48 @@ using System.IO;
 namespace Cave.IO
 {
     /// <summary>
-    /// Bit Stream Reader Class for Bitstreams of the form: byte0[bit7,bit6,bit5,bit4,bit3,bit2,bit1,bit0] byte1[bit15,bit14,bit13,bit12,...]
+    /// Bit Stream Reader Class for Bitstreams of the form: byte0[bit7,bit6,bit5,bit4,bit3,bit2,bit1,bit0] byte1[bit15,bit14,bit13,bit12,...].
     /// </summary>
     public sealed class BitStreamWriterReverse
     {
-        int m_BufferedByte = 0;
-        int m_Position = 0;
-        Stream m_Stream;
+        int bufferedByte = 0;
+        int position = 0;
 
         /// <summary>
-        /// Obtains the BaseStream
+        /// Obtains the BaseStream.
         /// </summary>
-        public Stream BaseStream => m_Stream;
+        public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// creates a new csBitStreamWriter
+        /// creates a new csBitStreamWriter.
         /// </summary>
         /// <param name="stream"></param>
         public BitStreamWriterReverse(Stream stream)
         {
-            m_Stream = stream;
+            BaseStream = stream;
         }
 
         /// <summary>
-        /// writes a bit to the buffer
+        /// writes a bit to the buffer.
         /// </summary>
         /// <returns></returns>
         public void WriteBit(bool items)
         {
             if (items)
             {
-                int bitmask = (1 << m_Position);
-                m_BufferedByte = m_BufferedByte | bitmask;
+                int bitmask = 1 << position;
+                bufferedByte = bufferedByte | bitmask;
             }
-            if (++m_Position > 7)
+            if (++position > 7)
             {
-                m_Stream.WriteByte((byte)m_BufferedByte);
-                m_BufferedByte = 0;
-                m_Position = 0;
+                BaseStream.WriteByte((byte)bufferedByte);
+                bufferedByte = 0;
+                position = 0;
             }
         }
 
         /// <summary>
-        /// writes some bits
+        /// writes some bits.
         /// </summary>
         /// <param name="bits"></param>
         /// <param name="count"></param>
@@ -70,7 +69,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// writes some bits
+        /// writes some bits.
         /// </summary>
         /// <param name="bits"></param>
         /// <param name="count"></param>
@@ -94,7 +93,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// writes some bits (todo: optimize me)
+        /// writes some bits (todo: optimize me).
         /// </summary>
         /// <param name="count"></param>
         /// <param name="items"></param>
@@ -107,52 +106,53 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves / sets the current bitposition
+        /// retrieves / sets the current bitposition.
         /// </summary>
-        public long Position => m_Stream.Position * 8 + m_Position;
+        public long Position => (BaseStream.Position * 8) + position;
 
         /// <summary>
-        /// retrieves the length in bits
+        /// retrieves the length in bits.
         /// </summary>
-        public long Length => m_Stream.Length * 8 + m_Position;
+        public long Length => (BaseStream.Length * 8) + position;
 
         /// <summary>
-        /// Closes the writer and the underlying stream
+        /// Closes the writer and the underlying stream.
         /// </summary>
         public void Close()
         {
             Flush();
 #if NETSTANDARD13
-            m_Stream?.Dispose();
+            BaseStream?.Dispose();
 #else
-            m_Stream?.Close();
+            BaseStream?.Close();
 #endif
-            m_Stream = null;
+            BaseStream = null;
         }
 
         /// <summary>
-        /// Flushes the buffered bits to the stream and closes the writer (not the underlying stream)
+        /// Flushes the buffered bits to the stream and closes the writer (not the underlying stream).
         /// </summary>
         public void Flush()
         {
-            if (m_Position > 0)
+            if (position > 0)
             {
-                m_Stream.WriteByte((byte)m_BufferedByte);
+                BaseStream.WriteByte((byte)bufferedByte);
             }
-            m_Stream = null;
+            BaseStream = null;
         }
 
         #region overrides
+
         /// <summary>
-        /// Obtains the name of the class and the current state
+        /// Obtains the name of the class and the current state.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             string result = base.ToString();
-            if (m_Stream != null)
+            if (BaseStream != null)
             {
-                if (m_Stream.CanSeek)
+                if (BaseStream.CanSeek)
                 {
                     result += " [" + Position + "/" + Length + "]";
                 }
@@ -169,7 +169,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a hash code for this object
+        /// Obtains a hash code for this object.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()

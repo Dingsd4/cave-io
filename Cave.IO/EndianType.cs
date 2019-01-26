@@ -1,7 +1,7 @@
 namespace Cave.IO
 {
     /// <summary>
-    /// Available endian types
+    /// Available endian types.
     /// </summary>
     public enum EndianType
     {
