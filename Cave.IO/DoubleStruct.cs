@@ -31,7 +31,7 @@ namespace Cave.IO
         /// Converts a <see cref="ulong"/> to a <see cref="double"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as double.</returns>
         public static double ToDouble(ulong value)
         {
             DoubleStruct d = new DoubleStruct
@@ -45,7 +45,7 @@ namespace Cave.IO
         /// Converts a <see cref="long"/> to a <see cref="double"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as double.</returns>
         public static double ToDouble(long value)
         {
             DoubleStruct d = new DoubleStruct
@@ -59,7 +59,7 @@ namespace Cave.IO
         /// Converts a <see cref="double"/> to a <see cref="long"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The converted value.</returns>
         public static long ToInt64(double value)
         {
             DoubleStruct d = new DoubleStruct
@@ -73,7 +73,7 @@ namespace Cave.IO
         /// Converts a <see cref="double"/> to a <see cref="ulong"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The converted value.</returns>
         public static ulong ToUInt64(double value)
         {
             DoubleStruct d = new DoubleStruct

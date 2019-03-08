@@ -88,7 +88,7 @@ namespace Cave.IO
 
         /// <summary>Parses the specified text.</summary>
         /// <param name="text">The text.</param>
-        /// <returns></returns>
+        /// <returns>The text as UTF-8 string.</returns>
         public static Utf8string Parse(string text)
         {
             return new Utf8string()

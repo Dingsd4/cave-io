@@ -11,8 +11,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the number of bytes needed for the specified value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value to encode.</param>
+        /// <returns>number of bytes needed.</returns>
         public static int GetByteCount7BitEncoded(ulong value)
         {
             unchecked
@@ -31,8 +31,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the number of bytes needed for the specified value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value to encode.</param>
+        /// <returns>number of bytes needed.</returns>
         public static int GetByteCount7BitEncoded(long value)
         {
             unchecked
@@ -44,8 +44,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the data of a 7 bit encoded value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value to encode.</param>
+        /// <returns>The encoded value as byte array.</returns>
         public static byte[] Get7BitEncoded(ulong value)
         {
             using (MemoryStream stream = new MemoryStream())
@@ -58,8 +58,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the data of a 7 bit encoded value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value to encode.</param>
+        /// <returns>The encoded value as byte array.</returns>
         public static byte[] Get7BitEncoded(long value)
         {
             unchecked

@@ -12,7 +12,6 @@ namespace Cave.IO
         /// Implicitly converts <see cref="Bits"/> data to an array.
         /// </summary>
         /// <param name="value">The binary data.</param>
-        /// <returns></returns>
         public static implicit operator byte[](Bits value)
         {
             if (value == null)
@@ -26,8 +25,7 @@ namespace Cave.IO
         /// <summary>
         /// Implicitly converts an array to <see cref="Bits"/> data.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">The binary data.</param>
         public static implicit operator Bits(byte[] data)
         {
             if (data == null)
@@ -83,8 +81,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Byte.</returns>
         public static byte ToByte(long binary)
         {
             return (byte)ToInt32(binary);
@@ -93,8 +91,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Sbyte.</returns>
         public static sbyte ToSByte(long binary)
         {
             return (sbyte)ToInt32(binary);
@@ -103,8 +101,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Int16.</returns>
         public static short ToInt16(long binary)
         {
             return (short)ToInt32(binary);
@@ -113,8 +111,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as UInt16.</returns>
         public static ushort ToUInt16(long binary)
         {
             return (ushort)ToInt32(binary);
@@ -123,8 +121,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as UInt32.</returns>
         public static uint ToUInt32(long binary)
         {
             return (uint)ToInt32(binary);
@@ -133,8 +131,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" int (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Int32.</returns>
         public static int ToInt32(long binary)
         {
             int result = 0;
@@ -156,8 +154,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Byte.</returns>
         public static byte ToByte(string binary)
         {
             return (byte)ToInt64(binary);
@@ -166,8 +164,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as SByte.</returns>
         public static sbyte ToSByte(string binary)
         {
             return (sbyte)ToInt64(binary);
@@ -176,8 +174,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Int16.</returns>
         public static short ToInt16(string binary)
         {
             return (short)ToInt64(binary);
@@ -186,8 +184,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as UInt16.</returns>
         public static ushort ToUInt16(string binary)
         {
             return (ushort)ToInt64(binary);
@@ -196,8 +194,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as UInt32.</returns>
         public static ushort ToUInt32(string binary)
         {
             return (ushort)ToInt64(binary);
@@ -206,8 +204,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as UInt32.</returns>
         public static int ToInt32(string binary)
         {
             return (int)ToInt64(binary);
@@ -216,8 +214,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a binary string ("100110101") to a "normal" int (0x135 = 309).
         /// </summary>
-        /// <param name="binary"></param>
-        /// <returns></returns>
+        /// <param name="binary">The binary value.</param>
+        /// <returns>The value as Int64.</returns>
         public static long ToInt64(string binary)
         {
             if (binary == null)
@@ -250,8 +248,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a value int (309 = 0x135) to a binary string ("100110101").
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The binary value.</param>
+        /// <returns>The value as binary string.</returns>
         public static string ToString(int value)
         {
             List<char> result = new List<char>();
@@ -275,8 +273,8 @@ namespace Cave.IO
         /// <summary>
         /// Converts a value int (309 = 0x135) to a binary long (100110101).
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The binary value as int.</param>
+        /// <returns>The value as binary long.</returns>
         public static long ToBinary(int value)
         {
             long result = 0;
@@ -295,7 +293,7 @@ namespace Cave.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="Bits"/> class.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">Binary data to initialize.</param>
         public Bits(byte[] data)
         {
             this.data = data;

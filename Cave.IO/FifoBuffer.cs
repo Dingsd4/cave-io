@@ -16,7 +16,7 @@ namespace Cave.IO
         /// <param name="source">The source pointer.</param>
         /// <param name="offset">The byte offset for the read position.</param>
         /// <param name="count">The number of bytes to read.</param>
-        /// <returns></returns>
+        /// <returns>The total number of bytes read into the buffer.</returns>
         public static byte[] Read(IntPtr source, int offset, int count)
         {
             IntPtr ptr = (offset == 0) ? source : new IntPtr(source.ToInt64() + offset);

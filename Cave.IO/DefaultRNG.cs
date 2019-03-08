@@ -13,7 +13,7 @@ namespace Cave.IO
         static RandomNumberGenerator generator = RandomNumberGenerator.Create();
 
         /// <summary>
-        /// Returns the currently used generator.
+        /// Gets or sets the currently used generator.
         /// </summary>
         public static RandomNumberGenerator Generator { get => generator; set => generator = value ?? throw new ArgumentNullException(nameof(value)); }
 
@@ -129,7 +129,7 @@ namespace Cave.IO
         /// <summary>Creates a random password using ascii printable characters.</summary>
         /// <param name="count">Length of the desired password.</param>
         /// <param name="characters">The characters.</param>
-        /// <returns></returns>
+        /// <returns>The password string.</returns>
         public static string GetPassword(int count, string characters = null)
         {
             char[] result = new char[count];

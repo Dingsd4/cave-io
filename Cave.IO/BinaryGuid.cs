@@ -90,7 +90,7 @@ namespace Cave.IO
 
         /// <summary>Parses the specified text.</summary>
         /// <param name="text">The text.</param>
-        /// <returns></returns>
+        /// <returns>the binary GUID.</returns>
         public static BinaryGuid Parse(string text)
         {
             if (text == null)
@@ -113,7 +113,7 @@ namespace Cave.IO
         /// <summary>Tries to parse the specified guid.</summary>
         /// <param name="text">The text.</param>
         /// <param name="guid">The unique identifier.</param>
-        /// <returns></returns>
+        /// <returns>true if parsing was successful.</returns>
         public static bool TryParse(string text, out BinaryGuid guid)
         {
 #if NET20 || NET35
@@ -194,7 +194,7 @@ namespace Cave.IO
         }
 
         /// <summary>Converts to an byte array.</summary>
-        /// <returns></returns>
+        /// <returns>Returns the byte array.</returns>
         public byte[] ToArray()
         {
             return (byte[])data.Clone();

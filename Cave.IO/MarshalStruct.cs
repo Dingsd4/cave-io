@@ -14,8 +14,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the size of the specified structure.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of the struct.</typeparam>
+        /// <returns>The size.</returns>
         public static int SizeOf<T>()
             where T : struct
         {
@@ -29,9 +29,9 @@ namespace Cave.IO
         /// <summary>
         /// Marshalls the specified buffer to a new structure instance.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of the struct.</typeparam>
         /// <param name="buffer">Buffer to copy.</param>
-        /// <param name="result"></param>
+        /// <param name="result">The new struct.</param>
         public static void Copy<T>(byte[] buffer, out T result)
             where T : struct
             => Copy<T>(buffer, 0, out result);
@@ -39,10 +39,10 @@ namespace Cave.IO
         /// <summary>
         /// Marshalls the specified buffer to a new structure instance.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of the struct.</typeparam>
         /// <param name="buffer">Buffer to copy.</param>
         /// <param name="offset">Offset to start reading the byte buffer at.</param>
-        /// <param name="result"></param>
+        /// <param name="result">The new struct.</param>
         public static void Copy<T>(byte[] buffer, int offset, out T result)
             where T : struct
         {
@@ -69,9 +69,9 @@ namespace Cave.IO
         /// <summary>
         /// Marshalls the specified structure to a new byte[] instance.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="item"></param>
-        /// <param name="data"></param>
+        /// <typeparam name="T">The type of the struct.</typeparam>
+        /// <param name="item">The item do marshal.</param>
+        /// <param name="data">The new byte array.</param>
         public static void Copy<T>(T item, out byte[] data)
             where T : struct
         {
@@ -136,7 +136,7 @@ namespace Cave.IO
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="data">byte buffer.</param>
         /// <param name="offset">Offset at the byte buffer to start reading.</param>
-        /// <returns></returns>
+        /// <returns>The new struct.</returns>
         public static T Read<T>(byte[] data, int offset = 0)
             where T : struct
         {
@@ -201,7 +201,7 @@ namespace Cave.IO
 
         /// <summary>Reads a native UTF8 string.</summary>
         /// <param name="ptr">The pointer.</param>
-        /// <returns></returns>
+        /// <returns>The string.</returns>
         public static string ReadUtf8(IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)
@@ -227,7 +227,7 @@ namespace Cave.IO
         /// <summary>Reads a native UTF8 strings array.</summary>
         /// <remarks>utf8 string arrays are a memory reagon containing null terminated utf8 strings terminated by an empty utf8 string.</remarks>
         /// <param name="ptr">The pointer.</param>
-        /// <returns></returns>
+        /// <returns>The array of strings.</returns>
         public static string[] ReadUtf8Strings(IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)

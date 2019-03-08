@@ -130,7 +130,7 @@ namespace Cave.IO
 
         /// <summary>Gets the file stream.</summary>
         /// <value>The file stream.</value>
-        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="ObjectDisposedException">Thrown if object is already disposed.</exception>
         public FileStream BaseStream
         {
             get

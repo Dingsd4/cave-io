@@ -20,8 +20,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public override byte[] GetBytes(ushort value)
         {
             return unchecked(new byte[] { (byte)(value % 256), (byte)(value / 256) });
@@ -30,8 +30,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public override byte[] GetBytes(uint value)
         {
             byte[] result = new byte[4];
@@ -46,8 +46,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public override byte[] GetBytes(ulong value)
         {
             byte[] result = new byte[8];
@@ -66,9 +66,11 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
+        /// <exception cref="ArgumentNullException">data is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">out of range.</exception>
         public override ushort ToUInt16(byte[] data, int index)
         {
             if (data == null)
@@ -87,9 +89,11 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
+        /// <exception cref="ArgumentNullException">data is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">out of range.</exception>
         public override uint ToUInt32(byte[] data, int index)
         {
             if (data == null)
@@ -110,9 +114,11 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
+        /// <exception cref="ArgumentNullException">data is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">out of range.</exception>
         public override ulong ToUInt64(byte[] data, int index)
         {
             if (data == null)

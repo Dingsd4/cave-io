@@ -31,7 +31,7 @@ namespace Cave.IO
         /// Converts a <see cref="uint"/> to a <see cref="float"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as Float.</returns>
         public static float ToSingle(uint value)
         {
             SingleStruct s = new SingleStruct
@@ -45,7 +45,7 @@ namespace Cave.IO
         /// Converts a <see cref="int"/> to a <see cref="float"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as float.</returns>
         public static float ToSingle(int value)
         {
             SingleStruct s = new SingleStruct
@@ -59,7 +59,7 @@ namespace Cave.IO
         /// Converts a <see cref="float"/> to a <see cref="int"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as Int32.</returns>
         public static int ToInt32(float value)
         {
             SingleStruct s = new SingleStruct
@@ -73,7 +73,7 @@ namespace Cave.IO
         /// Converts a <see cref="float"/> to a <see cref="uint"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as UInt32.</returns>
         public static uint ToUInt32(float value)
         {
             SingleStruct s = new SingleStruct

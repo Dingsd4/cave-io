@@ -25,17 +25,17 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// This stream can always be read.
+        /// Gets a value indicating whether this stream can always be read.
         /// </summary>
         public override bool CanRead => true;
 
         /// <summary>
-        /// This stream can seek.
+        /// Gets a value indicating whether this stream can seek.
         /// </summary>
         public override bool CanSeek => true;
 
         /// <summary>
-        /// This stream can not be written.
+        /// Gets a value indicating whether this stream can not be written.
         /// </summary>
         public override bool CanWrite => false;
 
@@ -47,12 +47,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// provides the current length of the stream.
+        /// Gets provides the current length of the stream.
         /// </summary>
         public override long Length => realLength;
 
         /// <summary>
-        /// provides the current read/write position.
+        /// Gets or sets the current read/write position.
         /// </summary>
         public override long Position
         {
@@ -61,7 +61,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Provides the number of bytes available from the current read position to the end of the stream.
+        /// Gets the number of bytes available from the current read position to the end of the stream.
         /// </summary>
         public virtual int Available
         {
@@ -195,7 +195,7 @@ namespace Cave.IO
         /// <summary>
         /// Peeks at the next byte in the buffer. Returns -1 if no more data available.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The next byte if available.</returns>
         public virtual int PeekByte()
         {
             lock (this)
@@ -212,7 +212,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads the next byte in the buffer (much faster than <see cref="Read"/>). Returns -1 if no more data available.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The next byte if available.</returns>
         public override int ReadByte()
         {
             lock (this)
@@ -230,10 +230,10 @@ namespace Cave.IO
         /// <summary>
         /// Reads some bytes at the current position from the stream.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="buffer">An array of bytes.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+        /// <returns>The total number of bytes read into the buffer. </returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
             lock (this)
@@ -263,9 +263,9 @@ namespace Cave.IO
         /// <summary>
         /// Throws a NotSupportedException.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
+        /// <param name="buffer">An array of bytes.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();
@@ -274,9 +274,9 @@ namespace Cave.IO
         /// <summary>
         /// Moves the read / write position in the stream.
         /// </summary>
-        /// <param name="offset"></param>
-        /// <param name="origin"></param>
-        /// <returns></returns>
+        /// <param name="offset">A byte offset relative to the origin parameter.</param>
+        /// <param name="origin">A value indicating the reference point used to obtain the new position.</param>
+        /// <returns>The new position within the current stream.</returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
             lock (this)
@@ -348,7 +348,7 @@ namespace Cave.IO
         /// <summary>
         /// Throws new NotSupportedException().
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">Not supported.</param>
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
@@ -371,6 +371,7 @@ namespace Cave.IO
         /// <summary>
         /// Removes all buffers in front of the current position.
         /// </summary>
+        /// <returns>Bytes freed.</returns>
         public virtual int FreeBuffers()
         {
             lock (this)
@@ -430,9 +431,9 @@ namespace Cave.IO
         /// <summary>
         /// Appends a byte buffer of the specified length from the specified Source stream to the end of the stream.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="source">The source stream.</param>
+        /// <param name="count">The number of bytes to append.</param>
+        /// <returns>The number of bytes written.</returns>
         public int AppendStream(Stream source, int count)
         {
             lock (this)
@@ -456,8 +457,8 @@ namespace Cave.IO
         /// <summary>
         /// Appends a whole stream to the end of the stream.
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
+        /// <param name="source">The source stream.</param>
+        /// <returns>The number of bytes written.</returns>
         public long AppendStream(Stream source)
         {
             lock (this)
@@ -492,7 +493,7 @@ namespace Cave.IO
         /// <summary>
         /// Puts a buffer to the end of the stream without copying.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">The byte buffer to add.</param>
         public virtual void PutBuffer(byte[] buffer)
         {
             lock (this)
@@ -514,9 +515,9 @@ namespace Cave.IO
         /// <summary>
         /// appends a buffer at the end of the stream (always copies the buffer).
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
+        /// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
         public virtual void AppendBuffer(byte[] buffer, int offset, int count)
         {
             lock (this)
@@ -538,7 +539,7 @@ namespace Cave.IO
         }
 
         /// <summary>Retrieves all data at the buffer as array (peek).</summary>
-        /// <returns></returns>
+        /// <returns>An array of bytes.</returns>
         public byte[] ToArray()
         {
             lock (this)

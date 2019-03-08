@@ -11,7 +11,7 @@ namespace Cave.IO
         /// <summary>Swaps the endian type of the specified data.</summary>
         /// <param name="data">The data.</param>
         /// <param name="bytes">The bytes to swap (2..x).</param>
-        /// <returns></returns>
+        /// <returns>The swapped data.</returns>
         public static byte[] Swap(byte[] data, int bytes)
         {
             if (bytes < 2)
@@ -60,7 +60,6 @@ namespace Cave.IO
         /// <summary>
         /// Gets the machine endian type.
         /// </summary>
-        /// <returns></returns>
         [ExcludeFromCodeCoverage]
         public static EndianType MachineType
         {

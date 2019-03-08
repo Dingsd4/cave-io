@@ -8,7 +8,7 @@ namespace Cave.IO
     public class ExceptionEventArgs : EventArgs
     {
         /// <summary>
-        /// The <see cref="Exception"/> that was encountered.
+        /// Gets the <see cref="Exception"/> that was encountered.
         /// </summary>
         public Exception Exception { get; private set; }
 

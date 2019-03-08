@@ -19,7 +19,7 @@ namespace Cave.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="BitStreamWriter"/> class.
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">The stream to write to.</param>
         public BitStreamWriter(Stream stream)
         {
             BaseStream = stream;
@@ -28,10 +28,10 @@ namespace Cave.IO
         /// <summary>
         /// writes a bit to the buffer.
         /// </summary>
-        /// <returns></returns>
-        public void WriteBit(bool items)
+        /// <param name="bit">The bit.</param>
+        public void WriteBit(bool bit)
         {
-            if (items)
+            if (bit)
             {
                 int bitmask = 1 << (7 - position);
                 bufferedByte = bufferedByte | bitmask;
@@ -47,9 +47,8 @@ namespace Cave.IO
         /// <summary>
         /// writes some bits.
         /// </summary>
-        /// <param name="bits"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="bits">The bits to write.</param>
+        /// <param name="count">Number of bits to write.</param>
         public void WriteBits(long bits, int count)
         {
             if (count < 0)
@@ -71,9 +70,8 @@ namespace Cave.IO
         /// <summary>
         /// writes some bits.
         /// </summary>
-        /// <param name="bits"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="bits">The bits to write.</param>
+        /// <param name="count">Number of bits to write.</param>
         public void WriteBits(int bits, int count)
         {
             if (count < 0)
@@ -95,18 +93,18 @@ namespace Cave.IO
         /// <summary>
         /// writes some bits (todo: optimize me).
         /// </summary>
-        /// <param name="count"></param>
-        /// <param name="items"></param>
-        public void WriteBits(int count, bool items)
+        /// <param name="count">Number of bits to write.</param>
+        /// <param name="bit">The bit to write count times.</param>
+        public void WriteBits(int count, bool bit)
         {
             for (int i = 0; i < count; i++)
             {
-                WriteBit(items);
+                WriteBit(bit);
             }
         }
 
         /// <summary>
-        /// Gets or sets the current bitposition.
+        /// Gets the current bitposition.
         /// </summary>
         public long Position => (BaseStream.Position * 8) + position;
 
@@ -146,7 +144,7 @@ namespace Cave.IO
         /// <summary>
         /// Gets the name of the class and the current state.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The class name and the current state.</returns>
         public override string ToString()
         {
             string result = base.ToString();
@@ -171,7 +169,7 @@ namespace Cave.IO
         /// <summary>
         /// Gets a hash code for this object.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();

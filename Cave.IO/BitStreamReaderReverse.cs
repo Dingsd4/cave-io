@@ -19,7 +19,7 @@ namespace Cave.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="BitStreamReaderReverse"/> class.
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">The stream to read from.</param>
         public BitStreamReaderReverse(Stream stream)
         {
             BaseStream = stream;
@@ -28,7 +28,7 @@ namespace Cave.IO
         /// <summary>
         /// reads a bit from the buffer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A bit.</returns>
         public int ReadBit()
         {
             if (position > 7)
@@ -47,8 +47,8 @@ namespace Cave.IO
         /// <summary>
         /// reads some bits.
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">Number of bits to read.</param>
+        /// <returns>Number of bits read.</returns>
         public long ReadBits64(int count)
         {
             if (Math.Abs(count) > 63)
@@ -68,8 +68,8 @@ namespace Cave.IO
         /// <summary>
         /// reads some bits.
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">Number of bits to read.</param>
+        /// <returns>Number of bits read.</returns>
         public int ReadBits32(int count)
         {
             if (Math.Abs(count) > 31)
@@ -120,12 +120,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves the length in bits.
+        /// Gets the length in bits.
         /// </summary>
         public long Length => BaseStream.Length * 8;
 
         /// <summary>
-        /// Checks for end of stream during bit reading. This can always be called, even if the stream cannot seek.
+        /// Gets a value indicating whether the end of stream is reached during bit reading. This can always be called, even if the stream cannot seek.
         /// </summary>
         public bool EndOfStream
         {
@@ -150,7 +150,7 @@ namespace Cave.IO
         /// <summary>
         /// Gets the name of the class and the current state.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The classname and current state.</returns>
         public override string ToString()
         {
             string result = base.ToString();
@@ -175,7 +175,7 @@ namespace Cave.IO
         /// <summary>
         /// Gets a hash code for this object.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();

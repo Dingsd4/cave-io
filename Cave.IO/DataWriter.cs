@@ -33,7 +33,7 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>Gets the endian encoder type.</summary>
+        /// <summary>Gets or sets the endian encoder type.</summary>
         /// <value>The endian encoder type.</value>
         public EndianType EndianType
         {
@@ -51,7 +51,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Encoding to use for characters and strings.
+        /// Gets or sets encoding to use for characters and strings.
         /// </summary>
         public StringEncoding StringEncoding
         {
@@ -73,12 +73,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Provides the new line mode used.
+        /// Gets or sets the new line mode used.
         /// </summary>
         public NewLineMode NewLineMode { get; set; }
 
         /// <summary>
-        /// Provides access to the base stream.
+        /// Gets access to the base stream.
         /// </summary>
         public Stream BaseStream { get; private set; }
 
@@ -141,7 +141,7 @@ namespace Cave.IO
         /// </summary>
         /// <param name="offset">Offset to seek to.</param>
         /// <param name="origin">Origin to seek from.</param>
-        /// <returns></returns>
+        /// <returns>A value of type SeekOrigin indicating the reference point used to obtain the new position.</returns>
         public long Seek(int offset, SeekOrigin origin)
         {
             return BaseStream.Seek(offset, origin);
@@ -150,7 +150,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(bool value)
         {
             BaseStream.WriteByte(value ? (byte)1 : (byte)0);
@@ -159,7 +159,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(byte value)
         {
             BaseStream.WriteByte(value);
@@ -168,7 +168,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified buffer directly to the stream.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">The buffer to write.</param>
         public void Write(byte[] buffer)
         {
             if (buffer == null)
@@ -182,7 +182,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified buffer to the stream with length prefix.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">The buffer to write.</param>
         public void WritePrefixed(byte[] buffer)
         {
             if (buffer == null)
@@ -199,26 +199,26 @@ namespace Cave.IO
         /// <summary>
         /// Writes a part of the specified buffer directly to the stream.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="index"></param>
-        /// <param name="count"></param>
-        public void Write(byte[] buffer, int index, int count)
+        /// <param name="buffer">The buffer to write.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        public void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
             {
                 throw new ArgumentNullException("buffer");
             }
 
-            BaseStream.Write(buffer, index, count);
+            BaseStream.Write(buffer, offset, count);
         }
 
         /// <summary>
         /// Writes a part of the specified buffer to the stream with length prefix.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="index"></param>
-        /// <param name="count"></param>
-        public void WritePrefixed(byte[] buffer, int index, int count)
+        /// <param name="buffer">The buffer to write.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        public void WritePrefixed(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
             {
@@ -226,13 +226,14 @@ namespace Cave.IO
             }
 
             Write7BitEncoded32(count);
-            BaseStream.Write(buffer, index, count);
+            BaseStream.Write(buffer, offset, count);
         }
 
         /// <summary>
         /// Writes the specified character directly to the stream.
         /// </summary>
-        /// <param name="c"></param>
+        /// <param name="c">The character to write.</param>
+        /// <returns>The number of bytes written.</returns>
         public int Write(char c)
         {
             return Write(new char[] { c });
@@ -241,7 +242,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified characters directly to the stream.
         /// </summary>
-        /// <param name="chars"></param>
+        /// <param name="chars">Array of characters to write.</param>
+        /// <returns>The number of bytes written.</returns>
         public int Write(char[] chars)
         {
             if (chars == null)
@@ -262,10 +264,11 @@ namespace Cave.IO
         /// <summary>
         /// Writes a part of the specified character array directly to the stream.
         /// </summary>
-        /// <param name="chars"></param>
-        /// <param name="index"></param>
-        /// <param name="count"></param>
-        public int Write(char[] chars, int index, int count)
+        /// <param name="chars">Array of characters to write.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <returns>Number of bytes written.</returns>
+        public int Write(char[] chars, int offset, int count)
         {
             if (chars == null)
             {
@@ -277,7 +280,7 @@ namespace Cave.IO
                 throw new NotSupportedException($"Encoding {StringEncoding} does not support direct char writing!");
             }
 
-            byte[] data = textEncoder.GetBytes(chars, index, count);
+            byte[] data = textEncoder.GetBytes(chars, offset, count);
             Write(data);
             return data.Length;
         }
@@ -285,7 +288,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(decimal value)
         {
             foreach (int decimalData in decimal.GetBits(value))
@@ -297,7 +300,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(double value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -306,7 +309,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(short value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -315,7 +318,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(int value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -324,7 +327,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(long value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -333,7 +336,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(sbyte value)
         {
             // Bugfix: BitConverter.GetBytes(sbyte) returns 2 bytes...
@@ -343,7 +346,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(float value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -353,6 +356,7 @@ namespace Cave.IO
         /// Writes the specified string directly to the stream.
         /// </summary>
         /// <param name="text">String to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int Write(string text)
         {
             if (textEncoder.IsDead())
@@ -369,6 +373,7 @@ namespace Cave.IO
         /// Writes the specified string (with/out length prefix) directly to the stream.
         /// </summary>
         /// <param name="text">String to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int WritePrefixed(string text)
         {
             if (text == null)
@@ -384,6 +389,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the "new line" marking to the stream. This depends on the chosen <see cref="NewLineMode"/>.
         /// </summary>
+        /// <returns>Number of bytes written.</returns>
         public int WriteLine()
         {
             if (!lineFeedTested)
@@ -406,7 +412,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified string followed by a "new line" marking to the stream. This depends on the chosen <see cref="NewLineMode"/>.
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">String to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int WriteLine(string text)
         {
             if (text == null)
@@ -422,8 +429,9 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified string zero terminated directly to the stream.
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">String to write.</param>
         /// <param name="fieldLength">Fixed field length to use (1..x).</param>
+        /// <returns>Number of bytes written.</returns>
         public int WriteZeroTerminated(string text, int fieldLength = 0)
         {
             if (!zeroTested)
@@ -458,7 +466,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(ushort value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -467,7 +475,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(uint value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -476,7 +484,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(ulong value)
         {
             Write(endianEncoder.GetBytes(value));
@@ -485,7 +493,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(TimeSpan value)
         {
             Write(value.Ticks);
@@ -494,7 +502,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified datetime value with <see cref="DateTimeKind"/>.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void Write(DateTime value)
         {
             Write7BitEncoded32((int)value.Kind);
@@ -504,7 +512,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes a 32bit linux epoch value.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void WriteEpoch32(DateTime value)
         {
             Write((uint)(value - new DateTime(1970, 1, 1)).TotalSeconds);
@@ -513,7 +521,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes a 64bit linux epoch value.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
         public void WriteEpoch64(DateTime value)
         {
             Write((ulong)(value - new DateTime(1970, 1, 1)).TotalSeconds);
@@ -522,7 +530,9 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified struct directly to the stream using the default marshaller.
         /// </summary>
-        /// <param name="item"></param>
+        /// <typeparam name="T">the struct.</typeparam>
+        /// <param name="item">The value to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int WriteStruct<T>(T item)
             where T : struct
         {
@@ -538,7 +548,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified 64 bit value to the stream 7 bit encoded (1-10 bytes).
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int Write7BitEncoded64(long value)
         {
             return BitCoder64.Write7BitEncoded(this, value);
@@ -547,7 +558,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified 64 bit value to the stream 7 bit encoded (1-10 bytes).
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int Write7BitEncoded64(ulong value)
         {
             return BitCoder64.Write7BitEncoded(this, value);
@@ -556,7 +568,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified 32 bit value to the stream 7 bit encoded (1-5 bytes).
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int Write7BitEncoded32(int value)
         {
             return BitCoder32.Write7BitEncoded(this, value);
@@ -565,7 +578,8 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified 32 bit value to the stream 7 bit encoded (1-5 bytes).
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value to write.</param>
+        /// <returns>Number of bytes written.</returns>
         public int Write7BitEncoded32(uint value)
         {
             return BitCoder32.Write7BitEncoded(this, value);
@@ -576,6 +590,7 @@ namespace Cave.IO
         /// </summary>
         /// <typeparam name="T">Type of each element.</typeparam>
         /// <param name="array">Array of elements.</param>
+        /// <returns>Number of bytes written.</returns>
         public int WriteArray<T>(T[] array)
             where T : struct
         {

@@ -11,9 +11,9 @@ namespace Cave.IO
     {
         #region public GetBytes() members
 
-        /// <summary>Obtains the bytes of a 7 bit encoded integer.</summary>
+        /// <summary>Gets the bytes of a 7 bit encoded integer.</summary>
         /// <param name="value">The value.</param>
-        /// <returns></returns>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] Get7BitEncodedBytes(ulong value)
         {
             int index = 0;
@@ -38,8 +38,8 @@ namespace Cave.IO
         /// <summary>
         /// Gets the bytes of a 7 bit encoded integer.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] Get7BitEncodedBytes(long value)
         {
             return Get7BitEncodedBytes(unchecked((ulong)value));
@@ -48,8 +48,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(bool value)
         {
             if (value)
@@ -63,10 +63,10 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves the specified value as byte array with the specified endiantype.
+        /// Gets the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(byte value)
         {
             return unchecked(new byte[] { value });
@@ -75,8 +75,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(sbyte value)
         {
             return unchecked(new byte[] { (byte)value });
@@ -85,8 +85,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(short value)
         {
             return unchecked(GetBytes((ushort)value));
@@ -95,8 +95,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(int value)
         {
             return unchecked(GetBytes((uint)value));
@@ -105,8 +105,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(long value)
         {
             return unchecked(GetBytes((ulong)value));
@@ -115,8 +115,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(float value)
         {
             return GetBytes(SingleStruct.ToUInt32(value));
@@ -125,8 +125,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(double value)
         {
             return GetBytes(DoubleStruct.ToUInt64(value));
@@ -135,8 +135,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(DateTime value)
         {
             return GetBytes(value.Ticks);
@@ -145,8 +145,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(TimeSpan value)
         {
             return GetBytes(value.Ticks);
@@ -155,8 +155,8 @@ namespace Cave.IO
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The value as encoded byte array.</returns>
         public byte[] GetBytes(decimal value)
         {
             int[] array = decimal.GetBits(value);
@@ -175,9 +175,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public bool ToBoolean(byte[] data, int index)
         {
             if (data == null)
@@ -191,9 +191,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public byte ToByte(byte[] data, int index)
         {
             if (data == null)
@@ -207,9 +207,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public sbyte ToSByte(byte[] data, int index)
         {
             if (data == null)
@@ -223,9 +223,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public short ToInt16(byte[] data, int index)
         {
             return unchecked((short)ToUInt16(data, index));
@@ -234,9 +234,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public int ToInt32(byte[] data, int index)
         {
             return unchecked((int)ToUInt32(data, index));
@@ -245,9 +245,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public long ToInt64(byte[] data, int index)
         {
             return unchecked((long)ToUInt64(data, index));
@@ -256,9 +256,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public decimal ToDecimal(byte[] data, int index)
         {
             if (data == null)
@@ -277,9 +277,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public DateTime ToDateTime(byte[] data, int index)
         {
             return new DateTime(ToInt64(data, index));
@@ -288,9 +288,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public TimeSpan ToTimeSpan(byte[] data, int index)
         {
             return new TimeSpan(ToInt64(data, index));
@@ -299,9 +299,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public double ToDouble(byte[] data, int index)
         {
             return DoubleStruct.ToDouble(ToUInt64(data, index));
@@ -310,9 +310,9 @@ namespace Cave.IO
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The converted value.</returns>
         public float ToSingle(byte[] data, int index)
         {
             return SingleStruct.ToSingle(ToUInt32(data, index));
@@ -325,45 +325,45 @@ namespace Cave.IO
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as byte array.</returns>
         public abstract byte[] GetBytes(ushort value);
 
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as byte array.</returns>
         public abstract byte[] GetBytes(uint value);
 
         /// <summary>
         /// Retrieves the specified value as byte array with the specified endiantype.
         /// </summary>
         /// <param name="value">The value to convert.</param>
-        /// <returns></returns>
+        /// <returns>The value as byte array.</returns>
         public abstract byte[] GetBytes(ulong value);
 
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The value as byte array.</returns>
         public abstract ushort ToUInt16(byte[] data, int index);
 
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The value as byte array.</returns>
         public abstract uint ToUInt32(byte[] data, int index);
 
         /// <summary>
         /// Returns a value converted from the specified data at a specified index.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="data">The data as byte array.</param>
+        /// <param name="index">The index.</param>
+        /// <returns>The value as byte array.</returns>
         public abstract ulong ToUInt64(byte[] data, int index);
 
         #endregion

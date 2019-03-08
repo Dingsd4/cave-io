@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Cave.IO
@@ -361,7 +360,7 @@ namespace Cave.IO
         /// </summary>
         /// <param name="offset">Offset to seek to.</param>
         /// <param name="origin">Origin to seek from.</param>
-        /// <returns></returns>
+        /// <returns>A value of type SeekOrigin indicating the reference point used to obtain the new position.</returns>
         public long Seek(long offset, SeekOrigin origin)
         {
             return BaseStream.Seek(offset, origin);
@@ -371,7 +370,6 @@ namespace Cave.IO
         /// Skips some bytes at the base stream.
         /// </summary>
         /// <param name="count">Length to skip in bytes.</param>
-        /// <returns></returns>
         public void Skip(long count)
         {
             if (count < 0)
@@ -394,16 +392,18 @@ namespace Cave.IO
         public long Available => BaseStream.Length - BaseStream.Position;
 
         /// <summary>
-        /// Writes the specified value directly to the stream.
+        /// Reads the specified value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public bool ReadBool()
         {
             return ReadByte() != 0;
         }
 
         /// <summary>
-        /// Writes the specified value directly to the stream.
+        /// Reads the specified value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public byte ReadByte()
         {
             int b = BaseStream.ReadByte();
@@ -418,7 +418,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a byte buffer with length prefix from the stream.
         /// </summary>
-        /// <exception cref="InvalidDataException"></exception>
+        /// <exception cref="InvalidDataException">Thrown if a invalid 7bit encoded value is found.</exception>
+        /// <returns>The value.</returns>
         public byte[] ReadBytes()
         {
             int length = Read7BitEncodedInt32();
@@ -437,7 +438,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a buffer from the stream.
         /// </summary>
-        /// <param name="count"></param>
+        /// <param name="count">Number of bytes to read.</param>
+        /// <returns>The value.</returns>
         public byte[] ReadBytes(int count)
         {
             byte[] result = new byte[count];
@@ -458,6 +460,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a character from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public char ReadChar()
         {
             if (textDecoder.CodePage == (int)StringEncoding.UTF_7)
@@ -487,6 +490,7 @@ namespace Cave.IO
         /// Reads characters from the stream.
         /// </summary>
         /// <param name="count">Number of characters (not bytes) to read.</param>
+        /// <returns>The value.</returns>
         public char[] ReadChars(int count)
         {
             if (textDecoder.IsSingleByte)
@@ -534,6 +538,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public decimal ReadDecimal()
         {
             int[] bits = new int[4];
@@ -548,6 +553,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public double ReadDouble()
         {
             byte[] bytes = ReadBytes(8);
@@ -557,6 +563,7 @@ namespace Cave.IO
         /// <summary>
         /// Writes the specified value directly to the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public float ReadSingle()
         {
             byte[] bytes = ReadBytes(4);
@@ -566,6 +573,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public sbyte ReadInt8()
         {
             unchecked
@@ -577,6 +585,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public short ReadInt16()
         {
             byte[] bytes = ReadBytes(2);
@@ -586,6 +595,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public int ReadInt32()
         {
             byte[] bytes = ReadBytes(4);
@@ -595,6 +605,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public long ReadInt64()
         {
             byte[] bytes = ReadBytes(8);
@@ -604,6 +615,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public byte ReadUInt8()
         {
             return ReadByte();
@@ -612,6 +624,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public ushort ReadUInt16()
         {
             byte[] bytes = ReadBytes(2);
@@ -621,6 +634,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public uint ReadUInt32()
         {
             byte[] bytes = ReadBytes(4);
@@ -630,6 +644,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value directly from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public ulong ReadUInt64()
         {
             byte[] bytes = ReadBytes(8);
@@ -639,6 +654,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a string ending with [CR]LF from the stream.
         /// </summary>
+        /// <param name="maximumBytes">The maximum number of bytes to read.</param>
+        /// <returns>The string.</returns>
         public string ReadLine(int maximumBytes = 64 * 1024)
         {
             if (newLineBytes == null)
@@ -684,6 +701,10 @@ namespace Cave.IO
         /// <summary>
         /// Reads bytes from the stream until one of the specified end markers are found or max count is reached.
         /// </summary>
+        /// <param name="data">An array of bytes.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+        /// <param name="removeMarker">If set, removes found mark from endMark array.</param>
+        /// <param name="endMark">Array of ending markers.</param>
         public void ReadUntil(byte[] data, ref int offset, bool removeMarker, params byte[] endMark)
         {
             int maxCount = data.Length;
@@ -722,6 +743,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a string of the specified byte count from the stream.
         /// </summary>
+        /// <param name="count">Number of bytes to read.</param>
+        /// <returns>The string.</returns>
         public string ReadString(int count)
         {
             return textDecoder.GetString(ReadBytes(count));
@@ -730,7 +753,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a string with length prefix from the stream.
         /// </summary>
-        /// <exception cref="InvalidDataException"></exception>
+        /// <exception cref="InvalidDataException">Thrown if invalid 7bit encoded value found.</exception>
+        /// <returns>The string.</returns>
         public string ReadString()
         {
             int length = Read7BitEncodedInt32();
@@ -749,6 +773,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads a zero terminated string from the stream.
         /// </summary>
+        /// <param name="maximumBytes">The number of bytes to write at maximum.</param>
+        /// <returns>The string.</returns>
         public string ReadZeroTerminatedString(int maximumBytes)
         {
             if (textDecoder.CodePage == (int)StringEncoding.UTF_7)
@@ -783,6 +809,7 @@ namespace Cave.IO
         /// Reads a zero terminated string from the stream.
         /// </summary>
         /// <param name="byteCount">Fieldlength in bytes.</param>
+        /// <returns>The string.</returns>
         public string ReadZeroTerminatedFixedLengthString(int byteCount)
         {
             string result = ReadString(byteCount);
@@ -798,6 +825,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public TimeSpan ReadTimeSpan()
         {
             return new TimeSpan(ReadInt64());
@@ -806,6 +834,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a DateTime value from the stream with <see cref="DateTimeKind"/>.
         /// </summary>
+        /// <returns>The value.</returns>
         public DateTime ReadDateTime()
         {
             DateTimeKind kind = (DateTimeKind)Read7BitEncodedInt32();
@@ -823,7 +852,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 32bit linux epoch value.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The value.</returns>
         public DateTime ReadEpoch32()
         {
             return new DateTime(1970, 1, 1) + TimeSpan.FromSeconds(ReadUInt32());
@@ -832,7 +861,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 64bit linux epoch value.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The value.</returns>
         public DateTime ReadEpoch64()
         {
             return new DateTime(1970, 1, 1) + TimeSpan.FromSeconds(ReadUInt64());
@@ -841,6 +870,8 @@ namespace Cave.IO
         /// <summary>
         /// Reads the specified struct from the stream using the default marshaller.
         /// </summary>
+        /// <typeparam name="T">the struct.</typeparam>
+        /// <returns>The struct.</returns>
         public T ReadStruct<T>()
             where T : struct
         {
@@ -853,6 +884,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 7 bit encoded 32 bit value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public int Read7BitEncodedInt32()
         {
             return BitCoder32.Read7BitEncodedInt32(BaseStream);
@@ -861,6 +893,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 7 bit encoded 32 bit value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public uint Read7BitEncodedUInt32()
         {
             return BitCoder32.Read7BitEncodedUInt32(BaseStream);
@@ -869,6 +902,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 7 bit encoded 64 bit value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public long Read7BitEncodedInt64()
         {
             return BitCoder64.Read7BitEncodedInt64(BaseStream);
@@ -877,6 +911,7 @@ namespace Cave.IO
         /// <summary>
         /// Reads a 7 bit encoded 64 bit value from the stream.
         /// </summary>
+        /// <returns>The value.</returns>
         public ulong Read7BitEncodedUInt64()
         {
             return BitCoder64.Read7BitEncodedUInt64(BaseStream);
@@ -886,6 +921,7 @@ namespace Cave.IO
         /// Reads an array of the specified struct type from the stream using the default marshaller.
         /// </summary>
         /// <typeparam name="T">Type of each element.</typeparam>
+        /// <returns>The struct array.</returns>
         public T[] ReadArray<T>()
             where T : struct
         {
