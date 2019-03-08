@@ -1,18 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net20;net35;net45</TargetFrameworks>
-    <RootNamespace>Cave.IO</RootNamespace>
     <Authors>Andreas Rohleder</Authors>
     <Company>CaveSystems GmbH, Andreas Rohleder</Company>
-    <Product>CaveSystems IO Library</Product>
-    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
-    <AssemblyOriginatorKeyFile>cave-io.snk</AssemblyOriginatorKeyFile>
+    <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
     <PackageIconUrl>https://www.cavesystems.de/favicon.ico</PackageIconUrl>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <!--project-->
+    <RootNamespace>Cave.IO</RootNamespace>    
+    <AssemblyOriginatorKeyFile>cave-io.snk</AssemblyOriginatorKeyFile>
+    <Product>CaveSystems IO Library</Product>
     <PackageTags>CaveSystems IO</PackageTags>
     <Description>CaveSystems IO Bibliothek</Description>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Cave.IO.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/CaveSystems/cave-io</PackageProjectUrl>
-    <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
+    <!--settings-->
     <PackageReleaseNotes />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <SignAssembly>true</SignAssembly>
