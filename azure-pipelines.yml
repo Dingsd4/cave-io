@@ -37,7 +37,7 @@ steps:
       {
         Write-Host "VersionSuffix: ''"
       }
-      $var = $(git describe --tags $(git rev-list --tags --max-count=1))
+      $var = $(git describe --tags $(git rev-list --tags --max-count=1)).Trim()
       if ($var -eq '')
       {
         $ver = [Version]"0.0.1"
@@ -66,10 +66,11 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-#- task: VSTest@2
-#  inputs:
-#    platform: '$(buildPlatform)'
-#    configuration: '$(buildConfiguration)'
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    testAssemblyVer2: '**\Test.exe'
 
 - task: NuGetCommand@2
   displayName: Push to nuget (release)
