@@ -19,7 +19,7 @@ namespace Cave.IO
         bool zeroTested;
 
         /// <summary>
-        /// Gets / sets the Encoding to use for characters and strings.
+        /// Gets or sets the Encoding to use for characters and strings.
         /// Setting this value directly sets <see cref="StringEncoding"/> to <see cref="StringEncoding.Undefined"/>.
         /// </summary>
         public Encoding Encoding
@@ -83,7 +83,7 @@ namespace Cave.IO
         public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// Creates a new binary writer using the specified encoding and writing to the specified stream.
+        /// Initializes a new instance of the <see cref="DataWriter"/> class.
         /// </summary>
         /// <param name="output">The stream to write to.</param>
         /// <param name="encoding">The encoding.</param>
@@ -105,7 +105,9 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>Creates a new binary writer using the specified encoding and writing to the specified stream.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataWriter"/> class.
+        /// </summary>
         /// <param name="output">The stream to write to.</param>
         /// <param name="newLineMode">New line mode.</param>
         /// <param name="encoding">Encoding to use for characters and strings.</param>

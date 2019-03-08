@@ -238,7 +238,7 @@ namespace Cave.IO
         #endregion
 
         /// <summary>
-        /// Gets / sets the Encoding to use for characters and strings.
+        /// Gets or sets the Encoding to use for characters and strings.
         /// Setting this value directly sets <see cref="StringEncoding"/> to <see cref="StringEncoding.Undefined"/>.
         /// </summary>
         public Encoding Encoding
@@ -253,11 +253,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Provides the new line mode used.
+        /// Gets or sets the new line mode used.
         /// </summary>
         public NewLineMode NewLineMode { get; set; }
 
-        /// <summary>Gets the endian encoder type.</summary>
+        /// <summary>Gets or sets the endian encoder type.</summary>
         /// <value>The endian encoder type.</value>
         public EndianType EndianType
         {
@@ -298,7 +298,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Provides access to the base stream.
+        /// Gets access to the base stream.
         /// </summary>
         public Stream BaseStream { get; private set; }
 
@@ -388,7 +388,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the available bytes for reading.
+        /// Gets the available bytes for reading.
         /// Attention: the BaseStream has to support the Length and Position properties.
         /// </summary>
         public long Available => BaseStream.Length - BaseStream.Position;

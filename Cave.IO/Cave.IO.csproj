@@ -1,44 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;netstandard2.0;net20;net35;net45</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <TargetFrameworks>netstandard2.0;net20;net35;net45</TargetFrameworks>
+    <RootNamespace>Cave.IO</RootNamespace>
     <Authors>Andreas Rohleder</Authors>
     <Company>CaveSystems GmbH, Andreas Rohleder</Company>
     <Product>CaveSystems IO Library</Product>
-    <Copyright>(c) 2003-2018 Andreas Rohleder</Copyright>
-    <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
-    <SignAssembly>true</SignAssembly>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
     <AssemblyOriginatorKeyFile>cave-io.snk</AssemblyOriginatorKeyFile>
-    <Version>1.0.2</Version>
     <PackageIconUrl>https://www.cavesystems.de/favicon.ico</PackageIconUrl>
     <PackageTags>CaveSystems IO</PackageTags>
-    <PackageProjectUrl>https://github.com/CaveSystems/cave-io</PackageProjectUrl>
-    <PackageReleaseNotes>Aktueller Release Candidate 2018</PackageReleaseNotes>
     <Description>CaveSystems IO Bibliothek</Description>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Cave.IO.xml</DocumentationFile>
+    <PackageProjectUrl>https://github.com/CaveSystems/cave-io</PackageProjectUrl>
+    <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
+    <PackageReleaseNotes />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyVersion>1.0.2</AssemblyVersion>
-    <FileVersion>2019.126.1412.537</FileVersion>
-    <DebugType>pdbonly</DebugType>
+    <NeutralLanguage />
+    <DelaySign>false</DelaySign>
+    <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSymbolsInPackage>true</IncludeSymbolsInPackage>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <DeterministicSourcePaths>false</DeterministicSourcePaths>
+    <FileVersion>$([System.DateTime]::UtcNow.Year).$([System.DateTime]::UtcNow.ToString("MMdd")).$([System.DateTime]::UtcNow.ToString("HHmm")).$([System.DateTime]::UtcNow.ToString("ssfff"))</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
   </PropertyGroup>
-  <!-- Workaround for EmbedSources support, see https://github.com/dotnet/roslyn/issues/19127-->
-  <Target Condition="'$(Configuration)'=='Debug'" Name="PopulateEmbeddedFiles" AfterTargets="BeforeCompile" BeforeTargets="CoreCompile">
-    <ItemGroup>
-      <EmbeddedFiles Include="@(Compile)" />
-    </ItemGroup>
-  </Target>
   <PropertyGroup>
     <DefineConstants Condition=" !$(DefineConstants.Contains(';NET')) ">$(DefineConstants);NET$(TargetFramework.ToUpper().Replace("_", "").Replace(".", "").Replace("NET", ""))</DefineConstants>
     <DefineConstants Condition=" $(DefineConstants.Contains(';NET')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf(";NET"))));NET$(TargetFramework.ToUpper().Replace("_", "").Replace(".", "").Replace("NET", ""))</DefineConstants>
@@ -66,7 +64,11 @@
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-beta.61">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.1-rc.114">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

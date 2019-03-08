@@ -17,12 +17,12 @@ namespace Cave.IO
         public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// creates a new csBitStreamReader.
+        /// Initializes a new instance of the <see cref="BitStreamReaderReverse"/> class.
         /// </summary>
         /// <param name="stream"></param>
         public BitStreamReaderReverse(Stream stream)
         {
-            this.BaseStream = stream;
+            BaseStream = stream;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves / sets the current bitposition.
+        /// Gets or sets the current bitposition.
         /// </summary>
         public long Position
         {
@@ -148,7 +148,7 @@ namespace Cave.IO
         #region overrides
 
         /// <summary>
-        /// Obtains the name of the class and the current state.
+        /// Gets the name of the class and the current state.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -173,7 +173,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a hash code for this object.
+        /// Gets a hash code for this object.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()

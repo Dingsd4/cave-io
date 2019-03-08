@@ -58,7 +58,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the machine endian type.
+        /// Gets the machine endian type.
         /// </summary>
         /// <returns></returns>
         [ExcludeFromCodeCoverage]

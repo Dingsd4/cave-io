@@ -36,7 +36,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the bytes of a 7 bit encoded integer.
+        /// Gets the bytes of a 7 bit encoded integer.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

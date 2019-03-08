@@ -13,7 +13,7 @@ namespace Cave.IO
         public Exception Exception { get; private set; }
 
         /// <summary>
-        /// Creates new <see cref="ExceptionEventArgs"/>.
+        /// Initializes a new instance of the <see cref="ExceptionEventArgs"/> class.
         /// </summary>
         /// <param name="ex">The <see cref="Exception"/> that was encountered.</param>
         public ExceptionEventArgs(Exception ex)

@@ -355,7 +355,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the number of buffers in the stream.
+        /// Gets the number of buffers in the stream.
         /// </summary>
         public int BufferCount
         {

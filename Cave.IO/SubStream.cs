@@ -11,8 +11,11 @@ namespace Cave.IO
         long position = 0;
 
         /// <summary>
-        /// Creates a new SubStream from the specified stream at its current read/write position.
+        /// Initializes a new instance of the <see cref="SubStream"/> class.
         /// </summary>
+        /// <remarks>
+        /// Creates a new SubStream from the specified stream at its current read/write position.
+        /// </remarks>
         /// <param name="stream">The stream to create the substream from.</param>
         public SubStream(Stream stream)
             : this(stream, 0)
@@ -20,8 +23,11 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Creates a new SubStream from the specified stream at the specified read/write position.
+        /// Initializes a new instance of the <see cref="SubStream"/> class.
         /// </summary>
+        /// <remarks>
+        /// Creates a new SubStream from the specified stream at the specified read/write position.
+        /// </remarks>
         /// <param name="stream">The stream to create the substream from.</param>
         /// <param name="seek">The start position of the substream relative to the current stream position.</param>
         public SubStream(Stream stream, int seek)
@@ -49,7 +55,7 @@ namespace Cave.IO
                     }
                 }
             }
-            this.BaseStream = stream;
+            BaseStream = stream;
         }
 
         /// <summary>
@@ -58,22 +64,22 @@ namespace Cave.IO
         public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// Obtains whether the stream can be read or not.
+        /// Gets a value indicating whether the stream can be read or not.
         /// </summary>
         public override bool CanRead => BaseStream.CanRead;
 
         /// <summary>
-        /// Obtains whether the stream can seek or not.
+        /// Gets a value indicating whether the stream can seek or not.
         /// </summary>
         public override bool CanSeek => BaseStream.CanSeek;
 
         /// <summary>
-        /// Obtains whether the stream can be written or not.
+        /// Gets a value indicating whether the stream can be written or not.
         /// </summary>
         public override bool CanWrite => BaseStream.CanWrite;
 
         /// <summary>
-        /// flushes the stream.
+        /// Flushes the stream.
         /// </summary>
         public override void Flush()
         {
@@ -81,12 +87,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the length of the stream.
+        /// Gets the length of the stream.
         /// </summary>
         public override long Length => BaseStream.Length - BaseStream.Position + position;
 
         /// <summary>
-        /// Gets/sets the current read/write position.
+        /// Gets or sets the current read/write position.
         /// </summary>
         public override long Position
         {

@@ -12,17 +12,17 @@ namespace Cave.IO
         int position = 0;
 
         /// <summary>
-        /// Obtains the BaseStream.
+        /// Gets the BaseStream.
         /// </summary>
         public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// creates a new csBitStreamWriter.
+        /// Initializes a new instance of the <see cref="BitStreamWriter"/> class.
         /// </summary>
         /// <param name="stream"></param>
         public BitStreamWriter(Stream stream)
         {
-            this.BaseStream = stream;
+            BaseStream = stream;
         }
 
         /// <summary>
@@ -106,12 +106,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// retrieves / sets the current bitposition.
+        /// Gets or sets the current bitposition.
         /// </summary>
         public long Position => (BaseStream.Position * 8) + position;
 
         /// <summary>
-        /// retrieves the length in bits.
+        /// Gets the length in bits.
         /// </summary>
         public long Length => (BaseStream.Length * 8) + position;
 
@@ -144,7 +144,7 @@ namespace Cave.IO
         #region overrides
 
         /// <summary>
-        /// Obtains the name of the class and the current state.
+        /// Gets the name of the class and the current state.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -169,7 +169,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a hash code for this object.
+        /// Gets a hash code for this object.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()

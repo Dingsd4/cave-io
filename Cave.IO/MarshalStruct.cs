@@ -169,7 +169,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a new byte buffer containing the data of the struct.
+        /// Gets a new byte buffer containing the data of the struct.
         /// </summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="item">the struct to read.</param>
@@ -182,7 +182,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a new struct instance containing the data of the buffer.
+        /// Gets a new struct instance containing the data of the buffer.
         /// </summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="data">byte buffer.</param>

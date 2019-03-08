@@ -255,7 +255,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a byte[] array containing all currently buffered bytes.
+        /// Gets a byte[] array containing all currently buffered bytes.
         /// </summary>
         /// <returns>Returns a byte[] array size = <see cref="Length"/>.</returns>
         public byte[] ToArray()
@@ -280,7 +280,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains number of bytes currently buffered.
+        /// Gets number of bytes currently buffered.
         /// </summary>
         public int Length => buffersLength;
     }

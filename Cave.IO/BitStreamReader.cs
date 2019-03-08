@@ -12,17 +12,17 @@ namespace Cave.IO
         int position = -1;
 
         /// <summary>
-        /// Obtains the BaseStream.
+        /// Gets the BaseStream.
         /// </summary>
         public Stream BaseStream { get; private set; }
 
         /// <summary>
-        /// creates a new BitStreamReader.
+        /// Initializes a new instance of the <see cref="BitStreamReader"/> class.
         /// </summary>
         /// <param name="stream"></param>
         public BitStreamReader(Stream stream)
         {
-            this.BaseStream = stream;
+            BaseStream = stream;
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Retrieves / Sets the current bitposition (Stream needs to provide Position getter and setter).
+        /// Gets or sets the current bitposition (Stream needs to provide Position getter and setter).
         /// </summary>
         public long Position
         {
@@ -171,12 +171,12 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the number of bits available (Stream needs to provide Position and Length getters!).
+        /// Gets the number of bits available (Stream needs to provide Position and Length getters!).
         /// </summary>
         public long Available => Length - Position;
 
         /// <summary>
-        /// Retrieves the length in bits (Stream needs to provide Length getter!).
+        /// Gets the length in bits (Stream needs to provide Length getter!).
         /// </summary>
         public long Length => BaseStream.Length * 8;
 
@@ -196,7 +196,7 @@ namespace Cave.IO
         #region overrides
 
         /// <summary>
-        /// Obtains the name of the class and the current state.
+        /// Gets the name of the class and the current state.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -221,7 +221,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a hash code for this object.
+        /// Gets a hash code for this object.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()

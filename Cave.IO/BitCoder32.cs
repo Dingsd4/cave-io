@@ -9,7 +9,7 @@ namespace Cave.IO
     public static class BitCoder32
     {
         /// <summary>
-        /// Obtains the number of bytes needed for the specified value.
+        /// Gets the number of bytes needed for the specified value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -29,7 +29,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the number of bytes needed for the specified value.
+        /// Gets the number of bytes needed for the specified value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -42,7 +42,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the data of a 7 bit encoded value.
+        /// Gets the data of a 7 bit encoded value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -56,7 +56,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains the data of a 7 bit encoded value.
+        /// Gets the data of a 7 bit encoded value.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

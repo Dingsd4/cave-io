@@ -27,7 +27,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a byte array containing secure random bytes with the specified size.
+        /// Gets a byte array containing secure random bytes with the specified size.
         /// </summary>
         /// <param name="size">The size in bytes.</param>
         /// <returns>Returns a new randomized byte array.</returns>
@@ -39,7 +39,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 8 bit signed integer.
+        /// Gets a random 8 bit signed integer.
         /// </summary>
         public static sbyte Int8
         {
@@ -50,7 +50,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 8 bit unsigned integer.
+        /// Gets a random 8 bit unsigned integer.
         /// </summary>
         public static byte UInt8
         {
@@ -61,7 +61,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 16 bit signed integer.
+        /// Gets a random 16 bit signed integer.
         /// </summary>
         public static short Int16
         {
@@ -72,7 +72,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 16 bit unsigned integer.
+        /// Gets a random 16 bit unsigned integer.
         /// </summary>
         public static ushort UInt16
         {
@@ -83,7 +83,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 32 bit signed integer.
+        /// Gets a random 32 bit signed integer.
         /// </summary>
         public static int Int32
         {
@@ -94,7 +94,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 32 bit unsigned integer.
+        /// Gets a random 32 bit unsigned integer.
         /// </summary>
         public static uint UInt32
         {
@@ -105,7 +105,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 64 bit signed integer.
+        /// Gets a random 64 bit signed integer.
         /// </summary>
         public static long Int64
         {
@@ -116,7 +116,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a random 64 bit unsigned integer.
+        /// Gets a random 64 bit unsigned integer.
         /// </summary>
         public static ulong UInt64
         {

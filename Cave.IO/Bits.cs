@@ -293,7 +293,7 @@ namespace Cave.IO
         byte[] data;
 
         /// <summary>
-        /// Creates a new instance with the specified data.
+        /// Initializes a new instance of the <see cref="Bits"/> class.
         /// </summary>
         /// <param name="data"></param>
         public Bits(byte[] data)
@@ -302,7 +302,7 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Obtains a copy of all data.
+        /// Gets a copy of all data.
         /// </summary>
         public byte[] Data => (byte[])data.Clone();
     }
