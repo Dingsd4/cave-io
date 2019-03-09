@@ -6,6 +6,7 @@
     <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
     <PackageIconUrl>https://www.cavesystems.de/favicon.ico</PackageIconUrl>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
     <!--project-->
     <RootNamespace>Cave.IO</RootNamespace>    
     <AssemblyOriginatorKeyFile>cave-io.snk</AssemblyOriginatorKeyFile>
@@ -56,14 +57,14 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35' OR '$(TargetFramework)'=='netstandard1.3'">
-    <PackageReference Include="Cave.Backports" Version="1.0.1" />
-  </ItemGroup>
   <ItemGroup>
     <None Remove="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35' OR '$(TargetFramework)'=='netstandard1.3'">
+    <PackageReference Include="Cave.Backports" Version="1.0.3" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05">

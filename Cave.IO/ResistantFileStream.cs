@@ -191,28 +191,32 @@ namespace Cave.IO
         #region stream implementation
 
         /// <summary>
-        /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Lesevorgänge unterstützt.
+        /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
         public override bool CanRead => stream.CanRead;
 
         /// <summary>
-        /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Suchvorgänge unterstützt.
+        /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         public override bool CanSeek => stream.CanSeek;
 
         /// <summary>
-        /// Ruft beim Überschreiben in einer abgeleiteten Klasse einen Wert ab, der angibt, ob der aktuelle Stream Schreibvorgänge unterstützt.
+        /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         public override bool CanWrite => stream.CanWrite;
 
-        /// <summary>Ruft beim Überschreiben in einer abgeleiteten Klasse die Länge des Streams in Bytes ab.</summary>
+        /// <summary>
+        /// Gets the length in bytes of the stream.
+        /// </summary>
         public override long Length => streamLength;
 
-        /// <summary>Ruft beim Überschreiben in einer abgeleiteten Klasse die Position im aktuellen Stream ab oder legt diese fest.</summary>
+        /// <summary>
+        /// Gets or sets the current position of this stream.
+        /// </summary>
         public override long Position { get => streamPosition; set => Seek(value, SeekOrigin.Begin); }
 
         /// <summary>
-        /// Löscht beim Überschreiben in einer abgeleiteten Klasse alle Puffer für diesen Stream und veranlasst die Ausgabe aller gepufferten Daten an das zugrunde liegende Gerät.
+        /// Clears buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
         public override void Flush()
         {
@@ -220,41 +224,41 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Liest beim Überschreiben in einer abgeleiteten Klasse eine Folge von Bytes aus dem aktuellen Stream und erhöht die Position im Stream um die Anzahl der gelesenen Bytes.
+        /// Reads a block of bytes from the stream and writes the data in a given buffer.
         /// </summary>
-        /// <param name="buffer">Ein Bytearray.Nach dem Beenden dieser Methode enthält der Puffer das angegebene Bytearray mit den Werten zwischen <paramref name="offset" /> und (<paramref name="offset" /> + <paramref name="count" /> - 1), die durch aus der aktuellen Quelle gelesene Bytes ersetzt wurden.</param>
-        /// <param name="offset">Der nullbasierte Byteoffset im <paramref name="buffer" />, ab dem die aus dem aktuellen Stream gelesenen Daten gespeichert werden.</param>
-        /// <param name="count">Die maximale Anzahl an Bytes, die aus dem aktuellen Stream gelesen werden sollen.</param>
+        /// <param name="buffer">When this method returns, contains the specified byte array with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.</param>
+        /// <param name="offset">The byte offset in array at which the read bytes will be placed.</param>
+        /// <param name="count">The maximum number of bytes to read.</param>
         /// <returns>
-        /// Die Gesamtanzahl der in den Puffer gelesenen Bytes.Dies kann weniger als die Anzahl der angeforderten Bytes sein, wenn diese Anzahl an Bytes derzeit nicht verfügbar ist, oder 0, wenn das Ende des Streams erreicht ist.
+        /// The total number of bytes read into the buffer. This might be less than the number of bytes requested if that number of bytes are not currently available, or zero if the end of the stream is reached.
         /// </returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
             return Resistant(() => { return stream.Read(buffer, offset, count); });
         }
 
-        /// <summary>Legt beim Überschreiben in einer abgeleiteten Klasse die Position im aktuellen Stream fest.</summary>
-        /// <param name="offset">Ein Byteoffset relativ zum <paramref name="origin" />-Parameter.</param>
-        /// <param name="origin">Ein Wert vom Typ <see cref="T:System.IO.SeekOrigin" />, der den Bezugspunkt angibt, von dem aus die neue Position ermittelt wird.</param>
-        /// <returns>Die neue Position innerhalb des aktuellen Streams.</returns>
+        /// <summary>Sets the current position of this stream to the given value.</summary>
+        /// <param name="offset">The point relative to origin from which to begin seeking.</param>
+        /// <param name="origin">Specifies the beginning, the end, or the current position as a reference point for offset, using a value of type SeekOrigin.</param>
+        /// <returns>The new position in the stream.</returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
             return Resistant(() => { return stream.Seek(offset, origin); });
         }
 
-        /// <summary>Legt beim Überschreiben in einer abgeleiteten Klasse die Länge des aktuellen Streams fest.</summary>
-        /// <param name="value">Die gewünschte Länge des aktuellen Streams in Bytes.</param>
+        /// <summary>Sets the length of this stream to the given value.</summary>
+        /// <param name="value">The new length of the stream.</param>
         public override void SetLength(long value)
         {
             Resistant(() => { stream.SetLength(value); });
         }
 
         /// <summary>
-        /// Schreibt beim Überschreiben in einer abgeleiteten Klasse eine Folge von Bytes in den aktuellen Stream und erhöht die aktuelle Position im Stream um die Anzahl der geschriebenen Bytes.
+        /// Writes a block of bytes to the file stream.
         /// </summary>
-        /// <param name="buffer">Ein Bytearray.Diese Methode kopiert <paramref name="count" /> Bytes aus dem <paramref name="buffer" /> in den aktuellen Stream.</param>
-        /// <param name="offset">Der nullbasierte Byteoffset im <paramref name="buffer" />, ab dem Bytes in den aktuellen Stream kopiert werden.</param>
-        /// <param name="count">Die Anzahl an Bytes, die in den aktuellen Stream geschrieben werden sollen.</param>
+        /// <param name="buffer">The buffer containing data to write to the stream.</param>
+        /// <param name="offset">The zero-based byte offset in array from which to begin copying bytes to the stream.</param>
+        /// <param name="count">The maximum number of bytes to write.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
             Resistant(() => { stream.Write(buffer, offset, count); });
