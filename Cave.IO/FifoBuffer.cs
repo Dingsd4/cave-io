@@ -26,21 +26,32 @@ namespace Cave.IO
         }
 
         LinkedList<byte[]> buffersList = new LinkedList<byte[]>();
-        int buffersLength = 0;
 
         /// <summary>
-        /// Directly prepends the specified byte buffer (without copying).
+        /// Directly prepends a copy of the specified byte buffer.
         /// </summary>
         /// <param name="buffer">The buffer to add (will not be copied).</param>
-        public void Prepend(byte[] buffer)
+        [Obsolete("Use Prepend(byte[] buffer, bool doNotCopy) instead.")]
+        public void Prepend(byte[] buffer) => Prepend(buffer, false);
+
+        /// <summary>
+        /// Directly prepends the specified byte buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to add.</param>
+        /// <param name="doNotCopy">Prevents copying of the <paramref name="buffer"/> data. Use only when you know what you are doing.</param>
+        public void Prepend(byte[] buffer, bool doNotCopy)
         {
             if (buffer == null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
 
+            if (!doNotCopy)
+            {
+                buffer = (byte[])buffer.Clone();
+            }
             buffersList.AddFirst(buffer);
-            buffersLength += buffer.Length;
+            Length += buffer.Length;
         }
 
         /// <summary>
@@ -59,7 +70,7 @@ namespace Cave.IO
             int len = stream.Read(buffer, 0, count);
             if (len == count)
             {
-                Enqueue(buffer);
+                Enqueue(buffer, true);
             }
             else
             {
@@ -68,18 +79,30 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Directly enqueues the specified byte buffer (without copying).
+        /// Directly enqueues the specified byte buffer.
         /// </summary>
-        /// <param name="buffer">The buffer to add (will not be copied).</param>
-        public void Enqueue(byte[] buffer)
+        /// <param name="buffer">The buffer to add.</param>
+        [Obsolete("Use Enqueue(byte[] buffer, bool doNotCopy) instead.")]
+        public void Enqueue(byte[] buffer) => Enqueue(buffer, false);
+
+        /// <summary>
+        /// Directly enqueues the specified byte buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer to add.</param>
+        /// <param name="doNotCopy">Prevents copying of the <paramref name="buffer"/> data. Use only when you know what you are doing.</param>
+        public void Enqueue(byte[] buffer, bool doNotCopy)
         {
             if (buffer == null)
             {
                 throw new ArgumentNullException("buffer");
             }
 
+            if (!doNotCopy)
+            {
+                buffer = (byte[])buffer.Clone();
+            }
             buffersList.AddLast(buffer);
-            buffersLength += buffer.Length;
+            Length += buffer.Length;
         }
 
         /// <summary>
@@ -96,8 +119,8 @@ namespace Cave.IO
             }
 
             byte[] newBuffer = new byte[count];
-            Array.Copy(buffer, offset, newBuffer, 0, count);
-            Enqueue(newBuffer);
+            Buffer.BlockCopy(buffer, offset, newBuffer, 0, count);
+            Enqueue(newBuffer, true);
         }
 
         /// <summary>
@@ -107,7 +130,7 @@ namespace Cave.IO
         /// <param name="count">The number of bytes to copy.</param>
         public void Enqueue(IntPtr ptr, int count)
         {
-            Enqueue(Read(ptr, 0, count));
+            Enqueue(Read(ptr, 0, count), true);
         }
 
         /// <summary>
@@ -150,7 +173,7 @@ namespace Cave.IO
                 byte[] current = node.Value;
                 node = node.Next;
                 int len = Math.Min(current.Length, size - pos);
-                Array.Copy(current, 0, result, pos, len);
+                Buffer.BlockCopy(current, 0, result, pos, len);
                 pos += len;
             }
             return result;
@@ -189,7 +212,7 @@ namespace Cave.IO
         {
             byte[] buffer = buffersList.First.Value;
             buffersList.RemoveFirst();
-            buffersLength -= buffer.Length;
+            Length -= buffer.Length;
             return buffer;
         }
 
@@ -205,20 +228,29 @@ namespace Cave.IO
                 throw new EndOfStreamException();
             }
 
-            byte[] result = new byte[size];
-            int pos = 0;
-            while (pos < size)
+            byte[] result;
+            if (Length == size)
             {
-                byte[] current = Dequeue();
-                int len = Math.Min(current.Length, size - pos);
-                Array.Copy(current, 0, result, pos, len);
-                pos += len;
-                if (len < current.Length)
+                result = ToArray();
+                Clear();
+            }
+            else
+            {
+                result = new byte[size];
+                int pos = 0;
+                while (pos < size)
                 {
-                    byte[] remainder = new byte[current.Length - len];
-                    Array.Copy(current, len, remainder, 0, remainder.Length);
-                    buffersList.AddFirst(remainder);
-                    buffersLength += remainder.Length;
+                    byte[] current = Dequeue();
+                    int len = Math.Min(current.Length, size - pos);
+                    Buffer.BlockCopy(current, 0, result, pos, len);
+                    pos += len;
+                    if (len < current.Length)
+                    {
+                        byte[] remainder = new byte[current.Length - len];
+                        Buffer.BlockCopy(current, len, remainder, 0, remainder.Length);
+                        buffersList.AddFirst(remainder);
+                        Length += remainder.Length;
+                    }
                 }
             }
             return result;
@@ -247,9 +279,9 @@ namespace Cave.IO
                 if (len < current.Length)
                 {
                     byte[] remainder = new byte[current.Length - len];
-                    Array.Copy(current, len, remainder, 0, remainder.Length);
+                    Buffer.BlockCopy(current, len, remainder, 0, remainder.Length);
                     buffersList.AddFirst(remainder);
-                    buffersLength += remainder.Length;
+                    Length += remainder.Length;
                 }
             }
         }
@@ -264,7 +296,7 @@ namespace Cave.IO
             int pos = 0;
             foreach (byte[] buffer in buffersList)
             {
-                Array.Copy(buffer, 0, result, pos, buffer.Length);
+                Buffer.BlockCopy(buffer, 0, result, pos, buffer.Length);
                 pos += buffer.Length;
             }
             return result;
@@ -276,12 +308,12 @@ namespace Cave.IO
         public void Clear()
         {
             buffersList.Clear();
-            buffersLength = 0;
+            Length = 0;
         }
 
         /// <summary>
         /// Gets number of bytes currently buffered.
         /// </summary>
-        public int Length => buffersLength;
+        public int Length { get; private set; }
     }
 }
