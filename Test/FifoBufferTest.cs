@@ -1,25 +1,21 @@
 ﻿using Cave.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
+using NUnit.Framework;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Test
 {
-    [TestClass]
+    [TestFixture]
     public class FifoBufferTest
     {
-        [TestMethod]
+        [Test]
         public void Test1()
         {
             var buffer = new FifoBuffer();
-            buffer.Enqueue(Encoding.ASCII.GetBytes("1234"));
-            buffer.Enqueue(Encoding.ASCII.GetBytes("5"));
-            buffer.Enqueue(Encoding.ASCII.GetBytes("678"));
-            buffer.Enqueue(Encoding.ASCII.GetBytes("90"));
+            buffer.Enqueue(Encoding.ASCII.GetBytes("1234"), true);
+            buffer.Enqueue(Encoding.ASCII.GetBytes("5"), true);
+            buffer.Enqueue(Encoding.ASCII.GetBytes("678"), true);
+            buffer.Enqueue(Encoding.ASCII.GetBytes("90"), true);
             Assert.AreEqual(buffer.Length, 10);
             Assert.AreEqual("1234567890", Encoding.ASCII.GetString(buffer.ToArray()));
             Assert.AreEqual(buffer.Length, 10);
@@ -34,7 +30,7 @@ namespace Test
             Assert.AreEqual(buffer.Length, 0);
         }
 
-        [TestMethod]
+        [Test]
         public void Test2()
         {
             var buffer = new FifoBuffer();

@@ -1,5 +1,5 @@
 ﻿using Cave.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,46 +8,30 @@ using System.Text;
 
 namespace Test
 {
-    [TestClass]
+    [TestFixture]
     public class DataReaderWriterTest
     {
-        [TestMethod]
+        [Test]
         public void TestReaderWriter1()
         {
             var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
 
             foreach (StringEncoding stringEncoding in Enum.GetValues(typeof(StringEncoding)))
             {
-                try
-                {
-                    TestReaderWriter(stringEncoding);
-                    Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
-                }
-                catch (Exception ex)
-                {
-                    if (!Program.WarningsOnly) throw;
-                    Console.WriteLine($"Test : warning {id}: TestReaderWriter({stringEncoding}) {ex.Message}");
-                }
+                TestReaderWriter(stringEncoding);
+                Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestReaderWriter2()
         {
             var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
 
             foreach (var encoding in Encoding.GetEncodings())
             {
-                try
-                {
-                    TestReaderWriter(encoding);
-                    Console.WriteLine($"Test : info {id}: TestReaderWriter({encoding.DisplayName}) ok");
-                }
-                catch (Exception ex)
-                {
-                    if (!Program.WarningsOnly) throw;
-                    Console.WriteLine($"Test : warning {id}: TestReaderWriter({encoding.DisplayName}) {ex.Message}");
-                }
+                TestReaderWriter(encoding);
+                Console.WriteLine($"Test : info {id}: TestReaderWriter({encoding.DisplayName}) ok");
             }
         }
 
