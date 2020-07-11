@@ -141,7 +141,7 @@ namespace Cave.IO
         /// <param name="count">The number of bytes to copy.</param>
         public void Enqueue(IntPtr ptr, int offset, int count)
         {
-            Enqueue(Read(ptr, offset, count));
+            Enqueue(Read(ptr, offset, count), true);
         }
 
         /// <summary>
