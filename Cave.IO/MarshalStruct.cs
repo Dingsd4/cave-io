@@ -6,14 +6,10 @@ using System.Text;
 
 namespace Cave.IO
 {
-    /// <summary>
-    /// Provides tools for manual struct mashalling.
-    /// </summary>
-    public static class MarshalStruct // MakeInternal:KEEP
+    /// <summary>Provides tools for manual struct marshalling.</summary>
+    public static class MarshalStruct
     {
-        /// <summary>
-        /// Gets the size of the specified structure.
-        /// </summary>
+        /// <summary>Gets the size of the specified structure.</summary>
         /// <typeparam name="T">The type of the struct.</typeparam>
         /// <returns>The size.</returns>
         public static int SizeOf<T>()
@@ -26,19 +22,15 @@ namespace Cave.IO
 #endif
         }
 
-        /// <summary>
-        /// Marshalls the specified buffer to a new structure instance.
-        /// </summary>
+        /// <summary>Marshalls the specified buffer to a new structure instance.</summary>
         /// <typeparam name="T">The type of the struct.</typeparam>
         /// <param name="buffer">Buffer to copy.</param>
         /// <param name="result">The new struct.</param>
         public static void Copy<T>(byte[] buffer, out T result)
             where T : struct
-            => Copy<T>(buffer, 0, out result);
+            => Copy(buffer, 0, out result);
 
-        /// <summary>
-        /// Marshalls the specified buffer to a new structure instance.
-        /// </summary>
+        /// <summary>Marshalls the specified buffer to a new structure instance.</summary>
         /// <typeparam name="T">The type of the struct.</typeparam>
         /// <param name="buffer">Buffer to copy.</param>
         /// <param name="offset">Offset to start reading the byte buffer at.</param>
@@ -49,15 +41,15 @@ namespace Cave.IO
             var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             try
             {
-                IntPtr ptr = handle.AddrOfPinnedObject();
+                var address = handle.AddrOfPinnedObject();
                 if (offset != 0)
                 {
-                    ptr = new IntPtr(ptr.ToInt64() + offset);
+                    address = new IntPtr(address.ToInt64() + offset);
                 }
 #if NET20 || NET35 || NET40 || NET45
-                result = (T)Marshal.PtrToStructure(ptr, typeof(T));
+                result = (T) Marshal.PtrToStructure(address, typeof(T));
 #else
-                result = Marshal.PtrToStructure<T>(ptr);
+                result = Marshal.PtrToStructure<T>(address);
 #endif
             }
             finally
@@ -66,16 +58,14 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// Marshalls the specified structure to a new byte[] instance.
-        /// </summary>
+        /// <summary>Marshalls the specified structure to a new byte[] instance.</summary>
         /// <typeparam name="T">The type of the struct.</typeparam>
         /// <param name="item">The item do marshal.</param>
         /// <param name="data">The new byte array.</param>
         public static void Copy<T>(T item, out byte[] data)
             where T : struct
         {
-            int size = SizeOf<T>();
+            var size = SizeOf<T>();
             data = new byte[size];
             var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             try
@@ -89,7 +79,8 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Reads a struct from a stream (see <see cref="DataReader"/> for a comfortable reader class supporting this, too).
+        ///     Reads a struct from a stream (see <see cref="DataReader" /> for a comfortable reader class supporting this,
+        ///     too).
         /// </summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="stream">Stream to read from.</param>
@@ -99,21 +90,23 @@ namespace Cave.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
-            int size = SizeOf<T>();
-            byte[] buffer = new byte[size];
+            var size = SizeOf<T>();
+            var buffer = new byte[size];
             if (stream.Read(buffer, 0, size) < size)
             {
                 throw new EndOfStreamException();
             }
+
             Copy(buffer, 0, out T result);
             return result;
         }
 
         /// <summary>
-        /// Writes a struct to a stream (see <see cref="DataWriter"/> for a comfortable reader class supporting this, too).
+        ///     Writes a struct to a stream (see <see cref="DataWriter" /> for a comfortable reader class supporting this,
+        ///     too).
         /// </summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="stream">Stream to write to.</param>
@@ -123,16 +116,14 @@ namespace Cave.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
-            Copy(item, out byte[] data);
+            Copy(item, out var data);
             stream.Write(data, 0, data.Length);
         }
 
-        /// <summary>
-        /// Reads a struct from a byte buffer.
-        /// </summary>
+        /// <summary>Reads a struct from a byte buffer.</summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="data">byte buffer.</param>
         /// <param name="offset">Offset at the byte buffer to start reading.</param>
@@ -142,16 +133,14 @@ namespace Cave.IO
         {
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
-            Copy(data, out T result);
+            Copy(data, offset, out T result);
             return result;
         }
 
-        /// <summary>
-        /// Writes a struct to a byte buffer.
-        /// </summary>
+        /// <summary>Writes a struct to a byte buffer.</summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="item">the struct to write.</param>
         /// <param name="buffer">byte buffer.</param>
@@ -161,29 +150,25 @@ namespace Cave.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
-            Copy(item, out byte[] data);
+            Copy(item, out var data);
             Array.Copy(data, 0, buffer, offset, data.Length);
         }
 
-        /// <summary>
-        /// Gets a new byte buffer containing the data of the struct.
-        /// </summary>
+        /// <summary>Gets a new byte buffer containing the data of the struct.</summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="item">the struct to read.</param>
         /// <returns>returns a new byte buffer.</returns>
         public static byte[] GetBytes<T>(T item)
             where T : struct
         {
-            Copy(item, out byte[] data);
+            Copy(item, out var data);
             return data;
         }
 
-        /// <summary>
-        /// Gets a new struct instance containing the data of the buffer.
-        /// </summary>
+        /// <summary>Gets a new struct instance containing the data of the buffer.</summary>
         /// <typeparam name="T">struct type.</typeparam>
         /// <param name="data">byte buffer.</param>
         /// <returns>returns a new struct.</returns>
@@ -192,7 +177,7 @@ namespace Cave.IO
         {
             if (data == null)
             {
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             }
 
             Copy(data, out T result);
@@ -200,20 +185,20 @@ namespace Cave.IO
         }
 
         /// <summary>Reads a native UTF8 string.</summary>
-        /// <param name="ptr">The pointer.</param>
+        /// <param name="address">The pointer.</param>
         /// <returns>The string.</returns>
-        public static string ReadUtf8(IntPtr ptr)
+        public static string ReadUtf8(IntPtr address)
         {
-            if (ptr == IntPtr.Zero)
+            if (address == IntPtr.Zero)
             {
                 return null;
             }
 
             var data = new List<byte>();
-            int i = 0;
+            var i = 0;
             while (true)
             {
-                byte b = Marshal.ReadByte(ptr, i++);
+                var b = Marshal.ReadByte(address, i++);
                 if (b == 0)
                 {
                     break;
@@ -221,25 +206,29 @@ namespace Cave.IO
 
                 data.Add(b);
             }
+
             return Encoding.UTF8.GetString(data.ToArray());
         }
 
         /// <summary>Reads a native UTF8 strings array.</summary>
-        /// <remarks>utf8 string arrays are a memory reagon containing null terminated utf8 strings terminated by an empty utf8 string.</remarks>
-        /// <param name="ptr">The pointer.</param>
+        /// <remarks>
+        ///     utf8 string arrays are a memory reagon containing null terminated utf8 strings terminated by an empty utf8
+        ///     string.
+        /// </remarks>
+        /// <param name="address">The pointer.</param>
         /// <returns>The array of strings.</returns>
-        public static string[] ReadUtf8Strings(IntPtr ptr)
+        public static string[] ReadUtf8Strings(IntPtr address)
         {
-            if (ptr == IntPtr.Zero)
+            if (address == IntPtr.Zero)
             {
                 return null;
             }
 
             var strings = new List<string>();
             var current = new List<byte>();
-            for (int i = 0; ; i++)
+            for (var i = 0;; i++)
             {
-                byte b = Marshal.ReadByte(ptr, i);
+                var b = Marshal.ReadByte(address, i);
                 if (b == 0)
                 {
                     if (current.Count == 0)
@@ -251,8 +240,10 @@ namespace Cave.IO
                     current.Clear();
                     continue;
                 }
+
                 current.Add(b);
             }
+
             return strings.ToArray();
         }
     }

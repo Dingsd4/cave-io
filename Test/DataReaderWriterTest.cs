@@ -1,45 +1,21 @@
-﻿using Cave.IO;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Cave.IO;
+using NUnit.Framework; 
 
 namespace Test
 {
     [TestFixture]
     public class DataReaderWriterTest
     {
-        [Test]
-        public void TestReaderWriter1()
-        {
-            var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
-
-            foreach (StringEncoding stringEncoding in Enum.GetValues(typeof(StringEncoding)))
-            {
-                TestReaderWriter(stringEncoding);
-                Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
-            }
-        }
-
-        [Test]
-        public void TestReaderWriter2()
-        {
-            var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
-
-            foreach (var encoding in Encoding.GetEncodings())
-            {
-                TestReaderWriter(encoding);
-                Console.WriteLine($"Test : info {id}: TestReaderWriter({encoding.DisplayName}) ok");
-            }
-        }
-
         void TestReaderWriter(EncodingInfo encoding)
         {
             var stream = new MemoryStream();
-            DataWriter writer = new DataWriter(stream, encoding.GetEncoding());
-            DataReader reader = new DataReader(stream, encoding.GetEncoding());
+            var writer = new DataWriter(stream, encoding.GetEncoding());
+            var reader = new DataReader(stream, encoding.GetEncoding());
             TestReaderWriter(reader, writer);
         }
 
@@ -53,83 +29,102 @@ namespace Test
             //little endian
             using (var stream = new MemoryStream())
             {
-                DataWriter writer = new DataWriter(stream, stringEncoding);
-                DataReader reader = new DataReader(stream, stringEncoding);
+                var writer = new DataWriter(stream, stringEncoding);
+                var reader = new DataReader(stream, stringEncoding);
                 TestReaderWriter(reader, writer);
             }
 
             //big endian
             using (var stream = new MemoryStream())
             {
-                DataWriter writer = new DataWriter(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
-                DataReader reader = new DataReader(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                var writer = new DataWriter(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                var reader = new DataReader(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
                 TestReaderWriter(reader, writer);
             }
         }
 
         void TestReaderWriter(DataReader reader, DataWriter writer)
         {
-            byte[] buffer = new byte[16 * 1024];
+            var buffer = new byte[16 * 1024];
             new Random().NextBytes(buffer);
             var dateTime = DateTime.UtcNow;
             var timeSpan = new TimeSpan(Environment.TickCount);
-
             string randomString;
             byte[] randomStringBytes;
             try
             {
-                char[] charArray = new char[short.MaxValue];
-                for (int i = 0; i < charArray.Length; i++) charArray[i] = (char)i;
+                var charArray = new char[short.MaxValue];
+                for (var i = 0; i < charArray.Length; i++)
+                {
+                    charArray[i] = (char) i;
+                }
+
                 randomStringBytes = writer.Encoding.GetBytes(charArray);
                 randomString = writer.Encoding.GetString(randomStringBytes);
             }
             catch
             {
-                char[] charArray = new char[128];
-                for (int i = 0; i < charArray.Length; i++) charArray[i] = (char)i;
+                var charArray = new char[128];
+                for (var i = 0; i < charArray.Length; i++)
+                {
+                    charArray[i] = (char) i;
+                }
+
                 randomStringBytes = writer.Encoding.GetBytes(charArray);
                 randomString = writer.Encoding.GetString(randomStringBytes);
             }
 
-            for (int i = int.MaxValue; i > 0; i >>= 1)
+            for (var i = int.MaxValue; i > 0; i >>= 1)
             {
                 writer.Write7BitEncoded32(-i);
                 writer.Write7BitEncoded32(i);
             }
-            for (long i = long.MaxValue; i > 0; i >>= 1)
+
+            for (var i = long.MaxValue; i > 0; i >>= 1)
             {
                 writer.Write7BitEncoded64(-i);
                 writer.Write7BitEncoded64(i);
             }
+
             writer.Write(true);
             writer.Write(false);
             try
             {
                 writer.Write(randomString[0]);
             }
-            catch(NotSupportedException)
+            catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
+
             try
             {
                 writer.Write(randomString[1]);
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
+
             try
             {
                 writer.Write(randomString.ToArray());
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
 
             var position = writer.BaseStream.Position;
-
             writer.Write(dateTime);
             writer.Write(timeSpan);
             writer.Write(1.23456789m);
@@ -160,7 +155,7 @@ namespace Test
             writer.Write(sbyte.MinValue);
             writer.WritePrefixed(randomString);
             writer.WritePrefixed("");
-            writer.WritePrefixed((string)null);
+            writer.WritePrefixed((string) null);
             writer.WritePrefixed(buffer);
             try
             {
@@ -168,27 +163,36 @@ namespace Test
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
+
             writer.Write(buffer);
             writer.WriteEpoch32(dateTime);
             writer.WriteEpoch64(dateTime);
-            bool supportsWriteLine = true;
+            var supportsWriteLine = true;
             try
             {
                 writer.WriteLine();
                 switch (reader.NewLineMode)
                 {
-                    case NewLineMode.CR: writer.WriteLine("\n\n\n"); break;
+                    case NewLineMode.CR:
+                        writer.WriteLine("\n\n\n");
+                        break;
                     case NewLineMode.CRLF:
-                    case NewLineMode.LF: writer.WriteLine("\r\r\r"); break;
+                    case NewLineMode.LF:
+                        writer.WriteLine("\r\r\r");
+                        break;
                     default: throw new NotSupportedException();
                 }
+
                 writer.WriteLine(randomString.Replace("\r", "").Replace("\n", ""));
             }
             catch (NotSupportedException)
             {
-                if (writer.StringEncoding == StringEncoding.X_EUROPA || writer.Encoding.IsDead())
+                if ((writer.StringEncoding == StringEncoding.X_EUROPA) || writer.Encoding.IsDead())
                 {
                     supportsWriteLine = false;
                 }
@@ -197,18 +201,20 @@ namespace Test
                     throw;
                 }
             }
-            reader.BaseStream.Position = 0;
 
-            for (int i = int.MaxValue; i > 0; i >>= 1)
+            reader.BaseStream.Position = 0;
+            for (var i = int.MaxValue; i > 0; i >>= 1)
             {
                 Assert.AreEqual(-i, reader.Read7BitEncodedInt32());
                 Assert.AreEqual(i, reader.Read7BitEncodedInt32());
             }
-            for (long i = long.MaxValue; i > 0; i >>= 1)
+
+            for (var i = long.MaxValue; i > 0; i >>= 1)
             {
                 Assert.AreEqual(-i, reader.Read7BitEncodedInt64());
                 Assert.AreEqual(i, reader.Read7BitEncodedInt64());
             }
+
             Assert.AreEqual(true, reader.ReadBool());
             Assert.AreEqual(false, reader.ReadBool());
             try
@@ -217,7 +223,10 @@ namespace Test
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
 
             try
@@ -226,7 +235,10 @@ namespace Test
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
 
             try
@@ -236,10 +248,16 @@ namespace Test
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
 
-            if (reader.BaseStream.Position != position) throw new Exception();
+            if (reader.BaseStream.Position != position)
+            {
+                throw new Exception();
+            }
 
             Assert.AreEqual(dateTime, reader.ReadDateTime());
             Assert.AreEqual(timeSpan, reader.ReadTimeSpan());
@@ -282,16 +300,19 @@ namespace Test
             }
             catch (NotSupportedException)
             {
-                if (!writer.Encoding.IsDead()) throw;
+                if (!writer.Encoding.IsDead())
+                {
+                    throw;
+                }
             }
+
             CollectionAssert.AreEqual(buffer, reader.ReadBytes(buffer.Length));
-            DateTime epoch = new DateTime(dateTime.Ticks - dateTime.Ticks % TimeSpan.TicksPerSecond);
+            var epoch = new DateTime(dateTime.Ticks - (dateTime.Ticks % TimeSpan.TicksPerSecond));
             Assert.AreEqual(epoch, reader.ReadEpoch32());
             Assert.AreEqual(epoch, reader.ReadEpoch64());
             if (supportsWriteLine)
             {
                 Assert.AreEqual("", reader.ReadLine());
-
                 switch (reader.NewLineMode)
                 {
                     case NewLineMode.CR:
@@ -311,12 +332,35 @@ namespace Test
                     }
                     default: throw new NotSupportedException();
                 }
+
                 {
                     var expected = randomString.Replace("\r", "").Replace("\n", "");
                     var readLine = reader.ReadLine(randomString.Length * 4);
                     CollectionAssert.AreEqual(expected.ToCharArray(), readLine.ToCharArray());
                     Assert.AreEqual(expected, readLine);
                 }
+            }
+        }
+
+        [Test]
+        public void TestReaderWriter1()
+        {
+            var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
+            foreach (StringEncoding stringEncoding in Enum.GetValues(typeof(StringEncoding)))
+            {
+                TestReaderWriter(stringEncoding);
+                Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
+            }
+        }
+
+        [Test]
+        public void TestReaderWriter2()
+        {
+            var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
+            foreach (var encoding in Encoding.GetEncodings())
+            {
+                TestReaderWriter(encoding);
+                Console.WriteLine($"Test : info {id}: TestReaderWriter({encoding.DisplayName}) ok");
             }
         }
     }

@@ -2,9 +2,7 @@
 
 namespace Cave.IO
 {
-    /// <summary>
-    /// Provides an interface for bit converter implementations.
-    /// </summary>
+    /// <summary>Provides an interface for bit converter implementations.</summary>
     public interface IBitConverter
     {
         /// <summary>Obtains the bytes of a 7 bit encoded integer.</summary>

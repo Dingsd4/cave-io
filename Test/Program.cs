@@ -10,8 +10,8 @@ namespace Test
         static int Main(string[] args)
         {
             var errors = 0;
-            Type[] types = typeof(Program).Assembly.GetTypes();
-            foreach (Type type in types.OrderBy(t => t.Name))
+            var types = typeof(Program).Assembly.GetTypes();
+            foreach (var type in types.OrderByDescending(t => t.Name))
             {
                 if (!type.GetCustomAttributes(typeof(TestFixtureAttribute), false).Any())
                 {
@@ -27,7 +27,6 @@ namespace Test
                     }
 
                     GC.Collect(999, GCCollectionMode.Default);
-
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"{method.DeclaringType.Name}.cs: info TI0001: Start {method.Name}");
                     Console.ResetColor();
@@ -47,19 +46,22 @@ namespace Test
                         Console.ResetColor();
                         errors++;
                     }
+
                     Console.WriteLine("---");
                 }
             }
+
             if (errors == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"---: info TI9999: All tests successfully completed.");
+                Console.WriteLine("---: info TI9999: All tests successfully completed.");
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"---: error TE9999: {errors} tests failed!");
             }
+
             Console.ResetColor();
             if (Debugger.IsAttached)
             {

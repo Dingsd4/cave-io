@@ -2,7 +2,7 @@
 
 namespace Cave.IO
 {
-    internal static class Ini
+    static class Ini
     {
         internal static void CheckName(string value, string paramName)
         {
@@ -10,7 +10,8 @@ namespace Cave.IO
             {
                 throw new ArgumentNullException(paramName);
             }
-            for (int i = 0; i < value.Length; i++)
+
+            for (var i = 0; i < value.Length; i++)
             {
                 switch (value[i])
                 {
@@ -23,6 +24,7 @@ namespace Cave.IO
                         {
                             throw new ArgumentException($"Invalid name for {paramName} {value}!", paramName);
                         }
+
                         break;
                 }
             }
@@ -30,13 +32,14 @@ namespace Cave.IO
 
         internal static string Escape(string value, char boxChar)
         {
-            bool box = value.IndexOfAny(new[] { boxChar, '#', ' ' }) > -1;
+            var box = value.IndexOfAny(new[] { boxChar, '#', ' ' }) > -1;
             value = value.EscapeUtf8();
-            box |= value.IndexOf('\\') > -1 || value.Trim() != value;
+            box |= (value.IndexOf('\\') > -1) || (value.Trim() != value);
             if (box)
             {
                 value = value.Box(boxChar);
             }
+
             return value;
         }
 
@@ -46,6 +49,7 @@ namespace Cave.IO
             {
                 value = value.Unbox(boxChar);
             }
+
             value = value.Unescape();
             return value;
         }

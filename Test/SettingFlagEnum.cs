@@ -14,6 +14,6 @@ namespace Test
         Six = 1 << 6,
         Seven = 1 << 7,
         Eight = 1 << 8,
-        Nine = 1 << 9,
+        Nine = 1 << 9
     }
 }

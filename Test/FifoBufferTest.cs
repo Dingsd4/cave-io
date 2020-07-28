@@ -1,7 +1,7 @@
-﻿using Cave.IO;
-using NUnit.Framework;
-using System.IO;
+﻿using System.IO;
 using System.Text;
+using Cave.IO;
+using NUnit.Framework;
 
 namespace Test
 {
@@ -19,13 +19,14 @@ namespace Test
             Assert.AreEqual(buffer.Length, 10);
             Assert.AreEqual("1234567890", Encoding.ASCII.GetString(buffer.ToArray()));
             Assert.AreEqual(buffer.Length, 10);
-            for(int i = 1; i <= 10; i++)
+            for (var i = 1; i <= 10; i++)
             {
                 var t = buffer.Dequeue(1);
                 Assert.AreEqual(1, t.Length);
-                Assert.AreEqual((byte)('0' + (i % 10)), t[0]);
+                Assert.AreEqual((byte) ('0' + (i % 10)), t[0]);
                 Assert.AreEqual(10 - i, buffer.Length);
             }
+
             buffer.Clear();
             Assert.AreEqual(buffer.Length, 0);
         }

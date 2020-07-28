@@ -1,26 +1,15 @@
-﻿using System;
-
-namespace Cave.IO
+﻿namespace Cave.IO
 {
-    /// <summary>
-    /// Compression type.
-    /// </summary>
-    [Flags]
+    /// <summary>Compression type.</summary>
     public enum IniCompressionType
     {
-        /// <summary>
-        /// No compression, no encryption
-        /// </summary>
+        /// <summary>No compression, no encryption</summary>
         None = 0x00,
 
-        /// <summary>
-        /// Comression using deflate
-        /// </summary>
+        /// <summary>Compression using deflate</summary>
         Deflate = 0x01,
 
-        /// <summary>
-        /// Comression using gzip
-        /// </summary>
-        GZip = 0x02,
+        /// <summary>Compression using gzip</summary>
+        GZip = 0x02
     }
 }

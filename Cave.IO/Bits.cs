@@ -3,38 +3,23 @@ using System.Collections.Generic;
 
 namespace Cave.IO
 {
-    /// <summary>
-    /// Provides binary conversion routines.
-    /// </summary>
+    /// <summary>Provides binary conversion routines.</summary>
     public class Bits
     {
-        /// <summary>
-        /// Implicitly converts <see cref="Bits"/> data to an array.
-        /// </summary>
+        /// <summary>Initializes a new instance of the <see cref="Bits" /> class.</summary>
+        /// <param name="data">Binary data to initialize.</param>
+        public Bits(byte[] data) => Data = data;
+
+        /// <summary>Gets a copy of all data.</summary>
+        public IList<byte> Data { get; }
+
+        /// <summary>Implicitly converts <see cref="Bits" /> data to an array.</summary>
         /// <param name="value">The binary data.</param>
-        public static implicit operator byte[](Bits value)
-        {
-            if (value == null)
-            {
-                return new byte[0];
-            }
+        public static implicit operator byte[](Bits value) => value?.Data as byte[] ?? new byte[0];
 
-            return value.data;
-        }
-
-        /// <summary>
-        /// Implicitly converts an array to <see cref="Bits"/> data.
-        /// </summary>
+        /// <summary>Implicitly converts an array to <see cref="Bits" /> data.</summary>
         /// <param name="data">The binary data.</param>
-        public static implicit operator Bits(byte[] data)
-        {
-            if (data == null)
-            {
-                return new Bits(new byte[0]);
-            }
-
-            return new Bits(data);
-        }
+        public static implicit operator Bits(byte[] data) => data == null ? new Bits(new byte[0]) : new Bits(data);
 
         /// <summary>Reflects 64 bits.</summary>
         /// <param name="x">The bits.</param>
@@ -47,7 +32,8 @@ namespace Cave.IO
             x = ((x & 0x0F0F0F0F0F0F0F0F) << 4) | ((x >> 4) & 0x0F0F0F0F0F0F0F0F);
 
             // move bytes
-            x = (x << 56) | ((x & 0xFF00) << 40) | ((x & 0xFF0000) << 24) | ((x & 0xFF000000) << 8) | ((x >> 8) & 0xFF000000) | ((x >> 24) & 0xFF0000) | ((x >> 40) & 0xFF00) | (x >> 56);
+            x = (x << 56) | ((x & 0xFF00) << 40) | ((x & 0xFF0000) << 24) | ((x & 0xFF000000) << 8) | ((x >> 8) & 0xFF000000) | ((x >> 24) & 0xFF0000) |
+                ((x >> 40) & 0xFF00) | (x >> 56);
             return x;
         }
 
@@ -75,184 +61,125 @@ namespace Cave.IO
             r = ((r & 0x55) << 1) | ((r >> 1) & 0x55);
             r = ((r & 0x33) << 2) | ((r >> 2) & 0x33);
             r = ((r & 0x0F) << 4) | ((r >> 4) & 0x0F);
-            return (byte)r;
+            return (byte) r;
         }
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Byte.</returns>
-        public static byte ToByte(long binary)
-        {
-            return (byte)ToInt32(binary);
-        }
+        public static byte ToByte(long binary) => (byte) ToInt32(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Sbyte.</returns>
-        public static sbyte ToSByte(long binary)
-        {
-            return (sbyte)ToInt32(binary);
-        }
+        public static sbyte ToSByte(long binary) => (sbyte) ToInt32(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Int16.</returns>
-        public static short ToInt16(long binary)
-        {
-            return (short)ToInt32(binary);
-        }
+        public static short ToInt16(long binary) => (short) ToInt32(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as UInt16.</returns>
-        public static ushort ToUInt16(long binary)
-        {
-            return (ushort)ToInt32(binary);
-        }
+        public static ushort ToUInt16(long binary) => (ushort) ToInt32(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as UInt32.</returns>
-        public static uint ToUInt32(long binary)
-        {
-            return (uint)ToInt32(binary);
-        }
+        public static uint ToUInt32(long binary) => (uint) ToInt32(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" int (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" int (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Int32.</returns>
         public static int ToInt32(long binary)
         {
-            int result = 0;
-            int counter = 0;
+            var result = 0;
+            var counter = 0;
             while (binary > 0)
             {
-                int current = (int)(binary % 10);
-                binary = binary / 10;
+                var current = (int) (binary % 10);
+                binary /= 10;
                 if (current > 1)
                 {
-                    throw new ArgumentException("binary");
+                    throw new ArgumentOutOfRangeException(nameof(binary));
                 }
 
                 result |= current << counter++;
             }
+
             return result;
         }
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Byte.</returns>
-        public static byte ToByte(string binary)
-        {
-            return (byte)ToInt64(binary);
-        }
+        public static byte ToByte(string binary) => (byte) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as SByte.</returns>
-        public static sbyte ToSByte(string binary)
-        {
-            return (sbyte)ToInt64(binary);
-        }
+        public static sbyte ToSByte(string binary) => (sbyte) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Int16.</returns>
-        public static short ToInt16(string binary)
-        {
-            return (short)ToInt64(binary);
-        }
+        public static short ToInt16(string binary) => (short) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as UInt16.</returns>
-        public static ushort ToUInt16(string binary)
-        {
-            return (ushort)ToInt64(binary);
-        }
+        public static ushort ToUInt16(string binary) => (ushort) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as UInt32.</returns>
-        public static ushort ToUInt32(string binary)
-        {
-            return (ushort)ToInt64(binary);
-        }
+        public static ushort ToUInt32(string binary) => (ushort) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary value (100110101) to a "normal" value (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary value (100110101) to a "normal" value (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as UInt32.</returns>
-        public static int ToInt32(string binary)
-        {
-            return (int)ToInt64(binary);
-        }
+        public static int ToInt32(string binary) => (int) ToInt64(binary);
 
-        /// <summary>
-        /// Converts a binary string ("100110101") to a "normal" int (0x135 = 309).
-        /// </summary>
+        /// <summary>Converts a binary string ("100110101") to a "normal" int (0x135 = 309).</summary>
         /// <param name="binary">The binary value.</param>
         /// <returns>The value as Int64.</returns>
         public static long ToInt64(string binary)
         {
             if (binary == null)
             {
-                throw new ArgumentNullException("binary");
+                throw new ArgumentNullException(nameof(binary));
             }
 
             if (binary.Length > 63)
             {
-                throw new ArgumentException("binary");
+                throw new ArgumentOutOfRangeException(nameof(binary));
             }
 
             long result = 0;
-            foreach (char c in binary)
+            foreach (var c in binary)
             {
                 switch (c)
                 {
                     case '0':
-                        result = result << 1;
+                        result <<= 1;
                         break;
                     case '1':
                         result = (result << 1) | 1;
                         break;
-                    default: throw new ArgumentException("binary");
+                    default: throw new ArgumentOutOfRangeException(nameof(binary));
                 }
             }
+
             return result;
         }
 
-        /// <summary>
-        /// Converts a value int (309 = 0x135) to a binary string ("100110101").
-        /// </summary>
+        /// <summary>Converts a value int (309 = 0x135) to a binary string ("100110101").</summary>
         /// <param name="value">The binary value.</param>
         /// <returns>The value as binary string.</returns>
         public static string ToString(int value)
         {
-            List<char> result = new List<char>();
+            var result = new List<char>();
             while (value != 0)
             {
                 if ((value & 1) == 0)
@@ -266,42 +193,26 @@ namespace Cave.IO
 
                 value >>= 1;
             }
+
             result.Reverse();
             return new string(result.ToArray());
         }
 
-        /// <summary>
-        /// Converts a value int (309 = 0x135) to a binary long (100110101).
-        /// </summary>
+        /// <summary>Converts a value int (309 = 0x135) to a binary long (100110101).</summary>
         /// <param name="value">The binary value as int.</param>
         /// <returns>The value as binary long.</returns>
         public static long ToBinary(int value)
         {
             long result = 0;
-            int counter = 0;
+            var counter = 0;
             while (value != 0)
             {
                 long bit = (value & 1) << counter++;
-                result = result | bit;
+                result |= bit;
                 value >>= 1;
             }
+
             return result;
         }
-
-        byte[] data;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Bits"/> class.
-        /// </summary>
-        /// <param name="data">Binary data to initialize.</param>
-        public Bits(byte[] data)
-        {
-            this.data = data;
-        }
-
-        /// <summary>
-        /// Gets a copy of all data.
-        /// </summary>
-        public byte[] Data => (byte[])data.Clone();
     }
 }

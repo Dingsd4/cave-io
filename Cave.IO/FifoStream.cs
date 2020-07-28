@@ -5,64 +5,33 @@ using System.IO;
 namespace Cave.IO
 {
     /// <summary>
-    /// Provides a fifo buffer for byte[] blocks readable as stream.
-    /// New buffers can be appended to the end of the stream and read like a stream.
-    /// The performance of this class is best with medium sized buffers (1kiB - 64kiB).
+    ///     Provides a fifo buffer for byte[] blocks readable as stream. New buffers can be appended to the end of the
+    ///     stream and read like a stream. The performance of this class is best with medium sized buffers (1kiB - 64kiB).
     /// </summary>
     public class FifoStream : Stream
     {
-        int realLength = 0;
-        int realPosition = 0;
-        int currentBufferPosition = 0;
-        LinkedListNode<byte[]> currentBuffer = null;
-        LinkedList<byte[]> buffers = new LinkedList<byte[]>();
+        readonly LinkedList<byte[]> buffers = new LinkedList<byte[]>();
+        LinkedListNode<byte[]> currentBuffer;
+        int currentBufferPosition;
+        int realLength;
+        int realPosition;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FifoStream"/> class.
-        /// </summary>
-        public FifoStream()
-        {
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this stream can always be read.
-        /// </summary>
+        /// <summary>Gets a value indicating whether this stream can always be read.</summary>
         public override bool CanRead => true;
 
-        /// <summary>
-        /// Gets a value indicating whether this stream can seek.
-        /// </summary>
+        /// <summary>Gets a value indicating whether this stream can seek.</summary>
         public override bool CanSeek => true;
 
-        /// <summary>
-        /// Gets a value indicating whether this stream can not be written.
-        /// </summary>
+        /// <summary>Gets a value indicating whether this stream can not be written.</summary>
         public override bool CanWrite => false;
 
-        /// <summary>
-        /// Does nothing.
-        /// </summary>
-        public override void Flush()
-        {
-        }
-
-        /// <summary>
-        /// Gets provides the current length of the stream.
-        /// </summary>
+        /// <summary>Gets provides the current length of the stream.</summary>
         public override long Length => realLength;
 
-        /// <summary>
-        /// Gets or sets the current read/write position.
-        /// </summary>
-        public override long Position
-        {
-            get => realPosition;
-            set => Seek(value, SeekOrigin.Begin);
-        }
+        /// <summary>Gets or sets the current read/write position.</summary>
+        public override long Position { get => realPosition; set => Seek(value, SeekOrigin.Begin); }
 
-        /// <summary>
-        /// Gets the number of bytes available from the current read position to the end of the stream.
-        /// </summary>
+        /// <summary>Gets the number of bytes available from the current read position to the end of the stream.</summary>
         public virtual int Available
         {
             get
@@ -74,6 +43,21 @@ namespace Cave.IO
             }
         }
 
+        /// <summary>Gets the number of buffers in the stream.</summary>
+        public int BufferCount
+        {
+            get
+            {
+                lock (this)
+                {
+                    return buffers.Count;
+                }
+            }
+        }
+
+        /// <summary>Does nothing.</summary>
+        public override void Flush() { }
+
         /// <summary>Determines whether the buffer contains the specified byte.</summary>
         /// <param name="b">The byte.</param>
         /// <returns>the index (a value &gt;=0) if the buffer contains the specified byte; otherwise, -1.</returns>
@@ -81,9 +65,9 @@ namespace Cave.IO
         {
             lock (this)
             {
-                int index = 0;
-                LinkedListNode<byte[]> node = currentBuffer;
-                int pos = currentBufferPosition;
+                var index = 0;
+                var node = currentBuffer;
+                var pos = currentBufferPosition;
                 while (node != null)
                 {
                     for (; pos < node.Value.Length; pos++, index++)
@@ -93,9 +77,11 @@ namespace Cave.IO
                             return index;
                         }
                     }
+
                     node = node.Next;
                     pos = 0;
                 }
+
                 return -1;
             }
         }
@@ -107,8 +93,8 @@ namespace Cave.IO
         {
             lock (this)
             {
-                LinkedListNode<byte[]> node = currentBuffer;
-                int pos = currentBufferPosition;
+                var node = currentBuffer;
+                var pos = currentBufferPosition;
                 while (node != null)
                 {
                     for (; pos < node.Value.Length; pos++)
@@ -118,9 +104,11 @@ namespace Cave.IO
                             return true;
                         }
                     }
+
                     node = node.Next;
                     pos = 0;
                 }
+
                 return false;
             }
         }
@@ -132,10 +120,10 @@ namespace Cave.IO
         {
             lock (this)
             {
-                int index = 0;
-                int checkIndex = 0;
-                LinkedListNode<byte[]> node = currentBuffer;
-                int pos = currentBufferPosition;
+                var index = 0;
+                var checkIndex = 0;
+                var node = currentBuffer;
+                var pos = currentBufferPosition;
                 while (node != null)
                 {
                     for (; pos < node.Value.Length; pos++, index++)
@@ -144,7 +132,7 @@ namespace Cave.IO
                         {
                             if (++checkIndex == data.Length)
                             {
-                                return index - checkIndex + 1;
+                                return (index - checkIndex) + 1;
                             }
                         }
                         else
@@ -152,9 +140,11 @@ namespace Cave.IO
                             checkIndex = 0;
                         }
                     }
+
                     node = node.Next;
                     pos = 0;
                 }
+
                 return -1;
             }
         }
@@ -166,9 +156,9 @@ namespace Cave.IO
         {
             lock (this)
             {
-                int checkIndex = 0;
-                LinkedListNode<byte[]> node = currentBuffer;
-                int pos = currentBufferPosition;
+                var checkIndex = 0;
+                var node = currentBuffer;
+                var pos = currentBufferPosition;
                 while (node != null)
                 {
                     for (; pos < node.Value.Length; pos++)
@@ -185,16 +175,16 @@ namespace Cave.IO
                             checkIndex = 0;
                         }
                     }
+
                     node = node.Next;
                     pos = 0;
                 }
+
                 return false;
             }
         }
 
-        /// <summary>
-        /// Peeks at the next byte in the buffer. Returns -1 if no more data available.
-        /// </summary>
+        /// <summary>Peeks at the next byte in the buffer. Returns -1 if no more data available.</summary>
         /// <returns>The next byte if available.</returns>
         public virtual int PeekByte()
         {
@@ -210,14 +200,15 @@ namespace Cave.IO
         }
 
         /// <summary>
-        /// Reads the next byte in the buffer (much faster than <see cref="Read"/>). Returns -1 if no more data available.
+        ///     Reads the next byte in the buffer (much faster than <see cref="Read" />). Returns -1 if no more data
+        ///     available.
         /// </summary>
         /// <returns>The next byte if available.</returns>
         public override int ReadByte()
         {
             lock (this)
             {
-                int result = PeekByte();
+                var result = PeekByte();
                 if (result > -1)
                 {
                     Seek(1, SeekOrigin.Current);
@@ -227,11 +218,12 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// Reads some bytes at the current position from the stream.
-        /// </summary>
+        /// <summary>Reads some bytes at the current position from the stream.</summary>
         /// <param name="buffer">An array of bytes.</param>
-        /// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+        /// <param name="offset">
+        ///     The zero-based byte offset in buffer at which to begin storing the data read from the current
+        ///     stream.
+        /// </param>
         /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
         /// <returns>The total number of bytes read into the buffer. </returns>
         public override int Read(byte[] buffer, int offset, int count)
@@ -239,11 +231,11 @@ namespace Cave.IO
             lock (this)
             {
                 count = Math.Min(count, Available);
-                int resultSize = 0;
-                while (count > 0 && currentBuffer != null)
+                var resultSize = 0;
+                while ((count > 0) && (currentBuffer != null))
                 {
-                    byte[] currentBuffer = this.currentBuffer.Value;
-                    int blockSize = Math.Min(currentBuffer.Length - currentBufferPosition, count);
+                    var currentBuffer = this.currentBuffer.Value;
+                    var blockSize = Math.Min(currentBuffer.Length - currentBufferPosition, count);
                     Array.Copy(currentBuffer, currentBufferPosition, buffer, offset, blockSize);
                     resultSize += blockSize;
                     count -= blockSize;
@@ -256,24 +248,18 @@ namespace Cave.IO
                         this.currentBuffer = this.currentBuffer.Next;
                     }
                 }
+
                 return resultSize;
             }
         }
 
-        /// <summary>
-        /// Throws a NotSupportedException.
-        /// </summary>
+        /// <summary>Throws a NotSupportedException.</summary>
         /// <param name="buffer">An array of bytes.</param>
         /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new NotSupportedException();
-        }
+        public override void Write(byte[] buffer, int offset, int count) { throw new NotSupportedException(); }
 
-        /// <summary>
-        /// Moves the read / write position in the stream.
-        /// </summary>
+        /// <summary>Moves the read / write position in the stream.</summary>
         /// <param name="offset">A byte offset relative to the origin parameter.</param>
         /// <param name="origin">A value indicating the reference point used to obtain the new position.</param>
         /// <returns>The new position within the current stream.</returns>
@@ -286,14 +272,14 @@ namespace Cave.IO
                     switch (origin)
                     {
                         case SeekOrigin.Current:
-                            if ((realPosition + offset > realLength) ||
-                                (realPosition + offset < 0) ||
+                            if (((realPosition + offset) > realLength) ||
+                                ((realPosition + offset) < 0) ||
                                 (currentBuffer == null))
                             {
                                 throw new ArgumentOutOfRangeException(nameof(offset));
                             }
 
-                            realPosition += (int)offset;
+                            realPosition += (int) offset;
                             offset += currentBufferPosition;
                             currentBufferPosition = 0;
                             while (offset < 0)
@@ -301,6 +287,7 @@ namespace Cave.IO
                                 currentBuffer = currentBuffer.Previous;
                                 offset += currentBuffer.Value.Length;
                             }
+
                             if (offset > 0)
                             {
                                 while ((currentBuffer != null) && (offset >= currentBuffer.Value.Length))
@@ -308,12 +295,14 @@ namespace Cave.IO
                                     offset -= currentBuffer.Value.Length;
                                     currentBuffer = currentBuffer.Next;
                                 }
-                                currentBufferPosition = (int)offset;
+
+                                currentBufferPosition = (int) offset;
                                 if ((currentBufferPosition > 0) && (currentBuffer == null))
                                 {
                                     throw new EndOfStreamException();
                                 }
                             }
+
                             return Position;
                         case SeekOrigin.Begin:
                             currentBuffer = buffers.First;
@@ -335,7 +324,7 @@ namespace Cave.IO
                             }
 
                             return realLength;
-                        default: throw new NotImplementedException(string.Format("SeekOrigin {0} undefined!", origin));
+                        default: throw new NotImplementedException($"SeekOrigin {origin} undefined!");
                     }
                 }
                 catch
@@ -345,62 +334,37 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// Throws new NotSupportedException().
-        /// </summary>
+        /// <summary>Throws new NotSupportedException().</summary>
         /// <param name="value">Not supported.</param>
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
+        public override void SetLength(long value) { throw new NotSupportedException(); }
 
-        /// <summary>
-        /// Gets the number of buffers in the stream.
-        /// </summary>
-        public int BufferCount
-        {
-            get
-            {
-                lock (this)
-                {
-                    return buffers.Count;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Removes all buffers in front of the current position.
-        /// </summary>
+        /// <summary>Removes all buffers in front of the current position.</summary>
         /// <returns>Bytes freed.</returns>
         public virtual int FreeBuffers()
         {
             lock (this)
             {
-                int bytesFreed = 0;
+                var bytesFreed = 0;
                 while ((buffers.First != null) && (buffers.First.Value.Length <= realPosition))
                 {
-                    int len = buffers.First.Value.Length;
+                    var len = buffers.First.Value.Length;
                     realPosition -= len;
                     realLength -= len;
                     buffers.RemoveFirst();
                     bytesFreed += len;
                 }
+
                 if (buffers.Count == 0)
                 {
                     currentBufferPosition = 0;
                     currentBuffer = null;
                 }
-                else
-                {
-                    // check first buffer
-                }
+
                 return bytesFreed;
             }
         }
 
-        /// <summary>
-        /// removes all buffers in front of the current position but keeps at least the specified number of bytes.
-        /// </summary>
+        /// <summary>removes all buffers in front of the current position but keeps at least the specified number of bytes.</summary>
         /// <param name="sizeToKeep">The number of bytes to keep at the buffer.</param>
         public virtual void FreeBuffers(int sizeToKeep)
         {
@@ -408,8 +372,8 @@ namespace Cave.IO
             {
                 while ((buffers.First != null) && (buffers.First.Value.Length <= realPosition))
                 {
-                    int len = buffers.First.Value.Length;
-                    if (Available - len >= sizeToKeep)
+                    var len = buffers.First.Value.Length;
+                    if ((Available - len) >= sizeToKeep)
                     {
                         realPosition -= len;
                         realLength -= len;
@@ -420,6 +384,7 @@ namespace Cave.IO
                         break;
                     }
                 }
+
                 if (buffers.Count == 0)
                 {
                     currentBufferPosition = 0;
@@ -428,9 +393,7 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// Appends a byte buffer of the specified length from the specified Source stream to the end of the stream.
-        /// </summary>
+        /// <summary>Appends a byte buffer of the specified length from the specified Source stream to the end of the stream.</summary>
         /// <param name="source">The source stream.</param>
         /// <param name="count">The number of bytes to append.</param>
         /// <returns>The number of bytes written.</returns>
@@ -440,23 +403,22 @@ namespace Cave.IO
             {
                 if (source == null)
                 {
-                    throw new ArgumentNullException("source");
+                    throw new ArgumentNullException(nameof(source));
                 }
 
-                byte[] buffer = new byte[count];
-                int result = source.Read(buffer, 0, count);
+                var buffer = new byte[count];
+                var result = source.Read(buffer, 0, count);
                 if (result != count)
                 {
                     Array.Resize(ref buffer, result);
                 }
+
                 PutBuffer(buffer);
                 return result;
             }
         }
 
-        /// <summary>
-        /// Appends a whole stream to the end of the stream.
-        /// </summary>
+        /// <summary>Appends a whole stream to the end of the stream.</summary>
         /// <param name="source">The source stream.</param>
         /// <returns>The number of bytes written.</returns>
         public long AppendStream(Stream source)
@@ -465,15 +427,15 @@ namespace Cave.IO
             {
                 if (source == null)
                 {
-                    throw new ArgumentNullException("source");
+                    throw new ArgumentNullException(nameof(source));
                 }
 
                 const int BufferSize = 1024 * 1024;
                 long result = 0;
                 while (true)
                 {
-                    byte[] buffer = new byte[BufferSize];
-                    int count = source.Read(buffer, 0, BufferSize);
+                    var buffer = new byte[BufferSize];
+                    var count = source.Read(buffer, 0, BufferSize);
                     if (count == 0)
                     {
                         break;
@@ -484,15 +446,15 @@ namespace Cave.IO
                     {
                         Array.Resize(ref buffer, count);
                     }
+
                     PutBuffer(buffer);
                 }
+
                 return result;
             }
         }
 
-        /// <summary>
-        /// Puts a buffer to the end of the stream without copying.
-        /// </summary>
+        /// <summary>Puts a buffer to the end of the stream without copying.</summary>
         /// <param name="buffer">The byte buffer to add.</param>
         public virtual void PutBuffer(byte[] buffer)
         {
@@ -500,7 +462,7 @@ namespace Cave.IO
             {
                 if (buffer == null)
                 {
-                    throw new ArgumentNullException("buffer");
+                    throw new ArgumentNullException(nameof(buffer));
                 }
 
                 buffers.AddLast(buffer);
@@ -512,9 +474,7 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// appends a buffer at the end of the stream (always copies the buffer).
-        /// </summary>
+        /// <summary>appends a buffer at the end of the stream (always copies the buffer).</summary>
         /// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
         /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
@@ -524,7 +484,7 @@ namespace Cave.IO
             {
                 if (buffer == null)
                 {
-                    throw new ArgumentNullException("buffer");
+                    throw new ArgumentNullException(nameof(buffer));
                 }
 
                 if (count == 0)
@@ -532,7 +492,7 @@ namespace Cave.IO
                     return;
                 }
 
-                byte[] newBuffer = new byte[count];
+                var newBuffer = new byte[count];
                 Array.Copy(buffer, offset, newBuffer, 0, count);
                 PutBuffer(newBuffer);
             }
@@ -544,17 +504,18 @@ namespace Cave.IO
         {
             lock (this)
             {
-                byte[] result = new byte[Available];
+                var result = new byte[Available];
                 {
-                    int start = 0;
-                    LinkedListNode<byte[]> node = currentBuffer;
+                    var start = 0;
+                    var node = currentBuffer;
                     if (node != null)
                     {
-                        int count = node.Value.Length - currentBufferPosition;
+                        var count = node.Value.Length - currentBufferPosition;
                         Array.Copy(node.Value, currentBufferPosition, result, start, count);
                         start += count;
                         node = node.Next;
                     }
+
                     while (node != null)
                     {
                         node.Value.CopyTo(result, start);
@@ -566,9 +527,7 @@ namespace Cave.IO
             }
         }
 
-        /// <summary>
-        /// Clears the buffer.
-        /// </summary>
+        /// <summary>Clears the buffer.</summary>
         public void Clear()
         {
             lock (this)
