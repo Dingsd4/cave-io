@@ -30,3 +30,6 @@ Test\bin\Release\net20\Test.exe
 Test\bin\Release\net35\Test.exe
 Test\bin\Release\net40\Test.exe
 Test\bin\Release\net45\Test.exe
+Test\bin\Release\net46\Test.exe
+Test\bin\Release\net47\Test.exe
+Test\bin\Release\net48\Test.exe
