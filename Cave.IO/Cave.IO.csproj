@@ -6,7 +6,7 @@
     <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
     <PackageIcon>cavesystems.jpg</PackageIcon>
     <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <!--project-->
     <RootNamespace>Cave.IO</RootNamespace>
     <AssemblyOriginatorKeyFile>cave-io.snk</AssemblyOriginatorKeyFile>

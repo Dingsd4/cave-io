@@ -86,12 +86,12 @@ namespace Cave.IO
             set
             {
                 endianType = value;
-                endianDecoder = endianType switch
+                switch (endianType)
                 {
-                    EndianType.LittleEndian => BitConverterLE.Instance,
-                    EndianType.BigEndian => BitConverterBE.Instance,
-                    _ => throw new NotImplementedException($"EndianType {endianType} not implemented!")
-                };
+                    case EndianType.LittleEndian: endianDecoder = BitConverterLE.Instance; break;
+                    case EndianType.BigEndian: endianDecoder = BitConverterBE.Instance; break;
+                    default: throw new NotImplementedException($"EndianType {endianType} not implemented!");
+                }
             }
         }
 
@@ -400,13 +400,13 @@ namespace Cave.IO
                     throw new NotSupportedException($"Encoding {textDecoder.EncodingName} does not support WriteLine/ReadLine!");
                 }
 
-                newLineChars = NewLineMode switch
+                switch (NewLineMode)
                 {
-                    NewLineMode.CR => "\r",
-                    NewLineMode.LF => "\n",
-                    NewLineMode.CRLF => "\r\n",
-                    _ => throw new NotImplementedException($"NewLineMode {NewLineMode} not implemented!")
-                };
+                    case NewLineMode.CR: newLineChars = "\r"; break;
+                    case NewLineMode.LF: newLineChars = "\n"; break;
+                    case NewLineMode.CRLF: newLineChars = "\r\n"; break;
+                    default: throw new NotImplementedException($"NewLineMode {NewLineMode} not implemented!");
+                }
                 newLineBytes = textDecoder.GetBytes(newLineChars);
             }
 

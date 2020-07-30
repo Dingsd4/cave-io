@@ -41,9 +41,11 @@ namespace Cave.IO
         /// <returns>The encoded value as byte array.</returns>
         public static byte[] Get7BitEncoded(uint value)
         {
-            using var stream = new MemoryStream();
-            Write7BitEncoded(stream, value);
-            return stream.ToArray();
+            using (var stream = new MemoryStream())
+            {
+                Write7BitEncoded(stream, value);
+                return stream.ToArray();
+            }
         }
 
         /// <summary>Gets the data of a 7 bit encoded value.</summary>
