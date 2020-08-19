@@ -444,6 +444,7 @@ namespace Cave.IO
         /// <param name="endMark">Array of ending markers.</param>
         public void ReadUntil(byte[] data, ref int offset, bool removeMarker, params byte[] endMark)
         {
+            if (data is null) throw new ArgumentNullException(nameof(data));
             var maxCount = data.Length;
             var completed = false;
             var endMarkLast = endMark.Length - 1;

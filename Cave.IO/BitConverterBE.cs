@@ -58,7 +58,11 @@ namespace Cave.IO
         /// <returns>The converted value.</returns>
         /// <exception cref="ArgumentNullException">data is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">out of range.</exception>
-        public override ushort ToUInt16(byte[] data, int index) => unchecked((ushort) ((data[index] * 256) + data[index + 1]));
+        public override ushort ToUInt16(byte[] data, int index)
+        {
+            if (data is null) throw new ArgumentNullException(nameof(data));
+            return unchecked((ushort)((data[index] * 256) + data[index + 1]));
+        }
 
         /// <summary>Returns a value converted from the specified data at a specified index.</summary>
         /// <param name="data">The data as byte array.</param>

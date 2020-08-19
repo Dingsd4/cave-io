@@ -118,6 +118,7 @@ namespace Cave.IO
         /// <returns>the index (a value &gt;=0) if the buffer contains the specified bytes; otherwise, -1.</returns>
         public int IndexOf(byte[] data)
         {
+            if (data is null) throw new ArgumentNullException(nameof(data));
             lock (this)
             {
                 var index = 0;
@@ -154,6 +155,7 @@ namespace Cave.IO
         /// <returns><c>true</c> if the buffer contains the specified data; otherwise, <c>false</c>.</returns>
         public bool Contains(byte[] data)
         {
+            if (data is null) throw new ArgumentNullException(nameof(data));
             lock (this)
             {
                 var checkIndex = 0;

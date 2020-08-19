@@ -44,6 +44,11 @@ namespace Cave.IO
         /// <returns>The swapped data.</returns>
         public static byte[] Swap(byte[] data, int bytes)
         {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             if (bytes < 2)
             {
                 throw new ArgumentOutOfRangeException(nameof(bytes));

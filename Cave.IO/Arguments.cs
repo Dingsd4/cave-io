@@ -51,6 +51,7 @@ namespace Cave.IO
         /// <returns>Returns a new <see cref="Arguments" /> instance.</returns>
         public static Arguments FromString(ParseOptions opt, string cmdLine)
         {
+            if (cmdLine is null) throw new ArgumentNullException(nameof(cmdLine));
             var result = new Arguments();
             result.ReadFromString(cmdLine, opt);
             return result;

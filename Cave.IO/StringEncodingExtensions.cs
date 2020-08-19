@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Cave.IO
 {
@@ -8,13 +9,18 @@ namespace Cave.IO
         /// <summary>Returns whether the encoding is dead (true) or not (false).</summary>
         /// <param name="encoding">Encoding to check.</param>
         /// <returns>Returns true for dead encodings.</returns>
-        public static bool IsDead(this Encoding encoding) => (encoding.CodePage >= 0xDEA0) && (encoding.CodePage < 0xDF00);
+        public static bool IsDead(this Encoding encoding)
+        {
+            if (encoding is null) throw new ArgumentNullException(nameof(encoding));
+            return (encoding.CodePage >= 0xDEA0) && (encoding.CodePage < 0xDF00);
+        }
 
         /// <summary>Converts an encoding instance by codepage to the corresponding <see cref="StringEncoding" /> enum value.</summary>
         /// <param name="encoding">The encoding to convert.</param>
         /// <returns>Returns an enum value for the <see cref="Encoding.CodePage" />.</returns>
         public static StringEncoding ToStringEncoding(this Encoding encoding)
         {
+            if (encoding is null) throw new ArgumentNullException(nameof(encoding));
             switch (encoding.CodePage)
             {
                 case (int) StringEncoding.UTF_16: return StringEncoding.UTF16;
