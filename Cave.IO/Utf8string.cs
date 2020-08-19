@@ -23,6 +23,18 @@ namespace Cave.IO
         /// <inheritdoc />
         public int CompareTo(Utf8string other) => string.CompareOrdinal(ToString(), other?.ToString());
 
+        /// <inheritdoc />
+        public static bool operator <(Utf8string left, Utf8string right) => left is null ? right is object : left.CompareTo(right) < 0;
+
+        /// <inheritdoc />
+        public static bool operator <=(Utf8string left, Utf8string right) => left is null || left.CompareTo(right) <= 0;
+
+        /// <inheritdoc />
+        public static bool operator >(Utf8string left, Utf8string right) => left is object && left.CompareTo(right) > 0;
+
+        /// <inheritdoc />
+        public static bool operator >=(Utf8string left, Utf8string right) => left is null ? right is null : left.CompareTo(right) >= 0;
+
         /// <summary>Performs an implicit conversion from <see cref="Utf8string" /> to <see cref="string" />.</summary>
         /// <param name="s">The string.</param>
         /// <returns>The result of the conversion.</returns>
@@ -72,8 +84,11 @@ namespace Cave.IO
         /// <summary>Parses the specified text.</summary>
         /// <param name="text">The text.</param>
         /// <returns>The text as UTF-8 string.</returns>
-        public static Utf8string Parse(string text) =>
-            new Utf8string { data = Encoding.UTF8.GetBytes(text), Length = text.Length };
+        public static Utf8string Parse(string text)
+        {
+            if (text is null) throw new ArgumentNullException(nameof(text));
+            return new Utf8string { data = Encoding.UTF8.GetBytes(text), Length = text.Length };
+        }
 
         /// <summary>Returns a <see cref="string" /> that represents this instance.</summary>
         /// <returns>A <see cref="string" /> that represents this instance.</returns>

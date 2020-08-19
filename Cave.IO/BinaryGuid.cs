@@ -8,6 +8,18 @@ namespace Cave.IO
         byte[] data;
 
         /// <inheritdoc />
+        public static bool operator <(BinaryGuid left, BinaryGuid right) => left is null ? right is object : left.CompareTo(right) < 0;
+
+        /// <inheritdoc />
+        public static bool operator <=(BinaryGuid left, BinaryGuid right) => left is null || left.CompareTo(right) <= 0;
+
+        /// <inheritdoc />
+        public static bool operator >(BinaryGuid left, BinaryGuid right) => left is object && left.CompareTo(right) > 0;
+
+        /// <inheritdoc />
+        public static bool operator >=(BinaryGuid left, BinaryGuid right) => left is null ? right is null : left.CompareTo(right) >= 0;
+
+        /// <inheritdoc />
         public int CompareTo(object other) => string.CompareOrdinal(ToString(), other?.ToString());
 
         /// <inheritdoc />
