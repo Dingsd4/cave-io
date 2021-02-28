@@ -4,43 +4,21 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Cave.IO;
-using NUnit.Framework; 
+using NUnit.Framework;
 
 namespace Test
 {
     [TestFixture]
     public class DataReaderWriterTest
     {
+        #region Private Methods
+
         void TestReaderWriter(EncodingInfo encoding)
         {
             var stream = new MemoryStream();
             var writer = new DataWriter(stream, encoding.GetEncoding());
             var reader = new DataReader(stream, encoding.GetEncoding());
             TestReaderWriter(reader, writer);
-        }
-
-        public void TestReaderWriter(StringEncoding stringEncoding)
-        {
-            if (stringEncoding == 0)
-            {
-                return;
-            }
-
-            //little endian
-            using (var stream = new MemoryStream())
-            {
-                var writer = new DataWriter(stream, stringEncoding);
-                var reader = new DataReader(stream, stringEncoding);
-                TestReaderWriter(reader, writer);
-            }
-
-            //big endian
-            using (var stream = new MemoryStream())
-            {
-                var writer = new DataWriter(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
-                var reader = new DataReader(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
-                TestReaderWriter(reader, writer);
-            }
         }
 
         void TestReaderWriter(DataReader reader, DataWriter writer)
@@ -56,7 +34,7 @@ namespace Test
                 var charArray = new char[short.MaxValue];
                 for (var i = 0; i < charArray.Length; i++)
                 {
-                    charArray[i] = (char) i;
+                    charArray[i] = (char)i;
                 }
 
                 randomStringBytes = writer.Encoding.GetBytes(charArray);
@@ -67,7 +45,7 @@ namespace Test
                 var charArray = new char[128];
                 for (var i = 0; i < charArray.Length; i++)
                 {
-                    charArray[i] = (char) i;
+                    charArray[i] = (char)i;
                 }
 
                 randomStringBytes = writer.Encoding.GetBytes(charArray);
@@ -155,7 +133,7 @@ namespace Test
             writer.Write(sbyte.MinValue);
             writer.WritePrefixed(randomString);
             writer.WritePrefixed("");
-            writer.WritePrefixed((string) null);
+            writer.WritePrefixed((string)null);
             writer.WritePrefixed(buffer);
             try
             {
@@ -179,12 +157,14 @@ namespace Test
                 switch (reader.NewLineMode)
                 {
                     case NewLineMode.CR:
-                        writer.WriteLine("\n\n\n");
-                        break;
+                    writer.WriteLine("\n\n\n");
+                    break;
+
                     case NewLineMode.CRLF:
                     case NewLineMode.LF:
-                        writer.WriteLine("\r\r\r");
-                        break;
+                    writer.WriteLine("\r\r\r");
+                    break;
+
                     default: throw new NotSupportedException();
                 }
 
@@ -342,14 +322,50 @@ namespace Test
             }
         }
 
+        #endregion Private Methods
+
+        #region Public Methods
+
+        public void TestReaderWriter(StringEncoding stringEncoding)
+        {
+            if (stringEncoding == 0)
+            {
+                return;
+            }
+
+            //little endian
+            using (var stream = new MemoryStream())
+            {
+                var writer = new DataWriter(stream, stringEncoding);
+                var reader = new DataReader(stream, stringEncoding);
+                TestReaderWriter(reader, writer);
+            }
+
+            //big endian
+            using (var stream = new MemoryStream())
+            {
+                var writer = new DataWriter(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                var reader = new DataReader(stream, stringEncoding, NewLineMode.CRLF, EndianType.BigEndian);
+                TestReaderWriter(reader, writer);
+            }
+        }
+
         [Test]
         public void TestReaderWriter1()
         {
             var id = "T" + MethodBase.GetCurrentMethod().GetHashCode().ToString("x4");
             foreach (StringEncoding stringEncoding in Enum.GetValues(typeof(StringEncoding)))
             {
-                TestReaderWriter(stringEncoding);
-                Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
+                try
+                {
+                    TestReaderWriter(stringEncoding);
+                    Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok");
+                }
+                catch (Exception ex)
+                {
+                    Assert.AreEqual(typeof(NotSupportedException), ex.GetType());
+                    Console.WriteLine($"Test : info {id}: TestReaderWriter({stringEncoding}) ok - not supported");
+                }
             }
         }
 
@@ -363,5 +379,7 @@ namespace Test
                 Console.WriteLine($"Test : info {id}: TestReaderWriter({encoding.DisplayName}) ok");
             }
         }
+
+        #endregion Public Methods
     }
 }
