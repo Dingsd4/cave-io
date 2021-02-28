@@ -4,84 +4,90 @@ using System.Threading;
 
 namespace Cave.IO
 {
-    /// <summary>Provides a lock free circular buffer.</summary>
+    /// <summary>Provides a lock free circular buffer with overflow checking.</summary>
     /// <typeparam name="TValue">Item type.</typeparam>
-    public class CircularBuffer<TValue>
+    public class CircularBuffer<TValue> : IRingBuffer<TValue> where TValue : class
     {
-        readonly TValue[] buffer;
-        readonly int mask;
+        readonly TValue[] Buffer;
+        readonly int Mask;
         int queued;
         long readCount;
         int readPosition;
         long rejected;
         long writeCount;
-        int writePosition;
+        int writePosition = -1;
 
         /// <summary>Initializes a new instance of the <see cref="CircularBuffer{TValue}" /> class.</summary>
-        /// <param name="bits">Number of bits to use for item capacity.</param>
-        public CircularBuffer(int bits)
+        /// <param name="bits">Number of bits to use for item capacity (defaults to 12 = 4096 items).</param>
+        public CircularBuffer(int bits = 12)
         {
-            if (bits < 2)
+            if (bits < 1 || bits > 31)
             {
-                throw new Exception();
+                throw new ArgumentOutOfRangeException(nameof(bits));
             }
 
-            if (bits > 31)
-            {
-                throw new Exception();
-            }
-
-            Capacity = 1 << bits;
-            mask = Capacity - 1;
-            buffer = new TValue[Capacity];
+            Buffer = new TValue[1 << bits];
+            Mask = Capacity - 1;
         }
 
-        /// <summary>Gets the current read position [0..Capacity-1].</summary>
+        /// <inheritdoc/>
         public int ReadPosition => readPosition;
 
-        /// <summary>Gets the current write position [0..Capacity-1].</summary>
+        /// <inheritdoc/>
         public int WritePosition => writePosition;
 
-        /// <summary>Gets the number of rejected items (items that could not be queued).</summary>
+        /// <inheritdoc/>
         public long RejectedCount => Interlocked.Read(ref rejected);
 
         /// <summary>Gets the maximum number of items queued.</summary>
         public int MaxQueuedCount { get; set; }
 
-        /// <summary>Gets the number of successful <see cref="Read" /> calls.</summary>
+        /// <inheritdoc/>
         public long ReadCount => Interlocked.Read(ref readCount);
 
-        /// <summary>Gets the number of successful <see cref="Write" /> calls.</summary>
+        /// <inheritdoc/>
         public long WriteCount => Interlocked.Read(ref writeCount);
 
         /// <summary>Write overflow (buffer under run) to <see cref="Trace" />.</summary>
-        public bool OverflowTrace { get; private set; }
+        public bool OverflowTrace { get; set; }
 
         /// <summary>Throw exceptions at <see cref="Write" /> on overflow (buffer under run)</summary>
-        public bool OverflowExceptions { get; private set; }
+        public bool OverflowExceptions { get; set; }
 
-        /// <summary>Gets the number of items maximum present at the buffer.</summary>
-        public int Capacity { get; }
+        /// <inheritdoc/>
+        public int Capacity => Buffer.Length;
 
-        /// <summary>Writes an item to the buffer if there is space left.</summary>
-        /// <param name="item">Item to write to the buffer.</param>
-        /// <returns>Returns true if the item could be written, false otherwise.</returns>
+        /// <inheritdoc/>
+        public int Available
+        {
+            get
+            {
+                var diff = writePosition - readPosition;
+                if (diff < 0) diff = Capacity - diff;
+                return diff;
+            }
+        }
+
+        /// <inheritdoc/>
+        public long LostCount => 0;
+
+        /// <inheritdoc/>
         public bool Write(TValue item)
         {
             var n = Interlocked.Increment(ref queued);
-            if (n > mask)
+            if (n > Mask)
             {
                 Interlocked.Decrement(ref queued);
                 Interlocked.Increment(ref rejected);
-                const string message = "Buffer overflow!";
+                const string Message = "Buffer overflow!";
                 if (OverflowExceptions)
                 {
-                    throw new Exception(message);
+                    throw new Exception(Message);
                 }
 
                 if (OverflowTrace)
                 {
-                    Trace.TraceError(message);
+                    Trace.TraceError(Message);
                 }
 
                 return false;
@@ -92,16 +98,14 @@ namespace Cave.IO
                 MaxQueuedCount = n;
             }
 
-            var i = Interlocked.Increment(ref writePosition) & mask;
-            buffer[i] = item;
+            var i = Interlocked.Increment(ref writePosition) & Mask;
+            Buffer[i] = item;
             Interlocked.Increment(ref writeCount);
             return true;
         }
 
-        /// <summary>Reads an item from the buffer is there is one left.</summary>
-        /// <param name="item">Item read from the buffer or default.</param>
-        /// <returns>Returns true if the item could be read, false otherwise.</returns>
-        public bool Read(out TValue item)
+        /// <inheritdoc/>
+        public bool TryRead(out TValue item)
         {
             var n = Interlocked.Decrement(ref queued);
             if (n < 0)
@@ -111,10 +115,19 @@ namespace Cave.IO
                 return false;
             }
 
-            var i = Interlocked.Increment(ref readPosition) & mask;
-            item = buffer[i];
+            var i = Interlocked.Increment(ref readPosition) & Mask;
+            item = Buffer[i];
             Interlocked.Increment(ref readCount);
             return true;
         }
+
+        /// <inheritdoc/>
+        public TValue Read() => TryRead(out var result) ? result : default;
+
+        /// <inheritdoc/>
+        public TValue[] ToArray() => (TValue[])Buffer.Clone();
+
+        /// <inheritdoc/>
+        public void CopyTo(TValue[] array, int index) => Buffer.CopyTo(array, index);
     }
 }
